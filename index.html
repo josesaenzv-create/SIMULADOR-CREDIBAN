@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador y CRM - CREDIBAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .print-container { 
+                box-shadow: none !important; 
+                border: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+                width: 100% !important; 
+                max-width: 100% !important;
+            }
+        }
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .tab-active { border-bottom: 3px solid #5da448; color: #5da448; font-weight: bold; }
+        .tab-inactive { color: #6b7280; font-weight: 500; border-bottom: 3px solid transparent; }
+        .tab-inactive:hover { color: #374151; border-bottom: 3px solid #d1d5db; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans md:p-8">
+
+    <!-- ================= PANTALLA DE BLOQUEO (LOGIN) ================= -->
+    <div id="login-screen" class="fixed inset-0 bg-gray-100 flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
+            
+            <!-- Logo CREDIBAN -->
+            <div class="w-20 h-24 mx-auto mb-2 flex justify-center items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 240" class="w-full h-full">
+                    <g fill="#59B447">
+                        <rect x="90" y="8" width="24" height="13" rx="6.5"/>
+                        <rect x="71" y="31" width="61" height="13" rx="6.5"/>
+                        <rect x="50" y="55" width="74" height="13" rx="6.5"/>
+                        <rect x="31" y="79" width="75" height="13" rx="6.5"/>
+                        <rect x="24" y="103" width="63" height="13" rx="6.5"/>
+                        <rect x="37" y="128" width="24" height="13" rx="6.5"/>
+                        <path d="M143 55 C141 78 130 95 111 107 C96 117 81 122 72 134 C62 147 63 166 70 181 C76 195 87 208 97 216 C107 201 118 189 131 177 C144 166 157 156 164 141 C173 123 173 104 168 89 C164 74 156 62 143 55 Z"/>
+                    </g>
+                </svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Acceso al Sistema</h2>
+            <p class="text-sm text-gray-500 mb-8 mt-1">Plataforma Comercial - CREDIBAN PERÚ</p>
+
+            <div class="space-y-4">
+                <input type="password" id="password-input" placeholder="Ingrese la contraseña" 
+                       class="w-full px-4 py-3 border-2 border-[#5da448] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#5da448]/30 text-center text-lg tracking-widest transition-all" 
+                       onkeypress="if(event.key === 'Enter') verificarClave()" />
+                
+                <button onclick="verificarClave()" 
+                        class="w-full bg-[#1ba44a] hover:bg-[#158039] text-white font-bold py-3 rounded-xl transition-colors shadow-md">
+                    Ingresar al Panel
+                </button>
+                <p id="error-msg" class="text-red-500 text-sm font-semibold hidden pt-2">Contraseña incorrecta, intente de nuevo.</p>
+            </div>
+        </div>
+    </div>
+    <!-- =============================================================== -->
+
+    <!-- CONTENEDOR PRINCIPAL DE LA APP (Oculto hasta ingresar contraseña) -->
+    <div id="app-content" class="hidden">
+        
+        <header class="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row items-center justify-between no-print gap-4">
+            <div class="flex items-center gap-4">
+                <!-- Logo CREDIBAN: Hojita (Punto 6 del Prompt Maestro) -->
+                <div class="w-14 h-14 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 240" class="w-full h-full">
+                        <g fill="#59B447">
+                            <rect x="90" y="8" width="24" height="13" rx="6.5"/>
+                            <rect x="71" y="31" width="61" height="13" rx="6.5"/>
+                            <rect x="50" y="55" width="74" height="13" rx="6.5"/>
+                            <rect x="31" y="79" width="75" height="13" rx="6.5"/>
+                            <rect x="24" y="103" width="63" height="13" rx="6.5"/>
+                            <rect x="37" y="128" width="24" height="13" rx="6.5"/>
+                            <path d="M143 55 C141 78 130 95 111 107 C96 117 81 122 72 134 C62 147 63 166 70 181 C76 195 87 208 97 216 C107 201 118 189 131 177 C144 166 157 156 164 141 C173 123 173 104 168 89 C164 74 156 62 143 55 Z"/>
+                        </g>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-[#5da448] tracking-tight">CREDIBAN</h1>
+                    <p class="text-sm text-gray-500 font-medium italic">empieza a construir tus sueños</p>
+                </div>
+            </div>
+            <div class="text-right hidden md:block">
+                <h2 class="text-xl font-bold text-gray-700">Plataforma Comercial</h2>
+            </div>
+        </header>
+
+        <!-- Sistema de Pestañas -->
+        <div class="max-w-7xl mx-auto mb-6 bg-white shadow-sm rounded-lg overflow-hidden no-print">
+            <nav class="flex space-x-6 px-6">
+                <button onclick="switchTab('simulador')" id="tab-simulador" class="py-4 px-2 tab-active transition-colors flex items-center gap-2">
+                    🧮 Simulador de Créditos
+                </button>
+                <button onclick="switchTab('crm')" id="tab-crm" class="py-4 px-2 tab-inactive transition-colors flex items-center gap-2">
+                    📁 Cartera de Clientes
+                </button>
+            </nav>
+        </div>
+
+        <!-- ================= PESTAÑA 1: SIMULADOR ================= -->
+        <main id="view-simulador" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Panel Izquierdo: Formulario -->
+            <div class="lg:col-span-4 bg-white rounded-xl shadow border border-gray-200 p-6 no-print flex flex-col">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Parámetros del Crédito</h3>
+                
+                <form id="simForm" class="space-y-4 text-sm flex-grow">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Nombre de Cliente</label>
+                        <input type="text" id="cliente" value="TJOSE" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Género</label>
+                            <select id="genero" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none">
+                                <option value="H">Hombre</option>
+                                <option value="M">Mujer</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">DNI</label>
+                            <input type="text" id="dni" placeholder="Ej: 76543210" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" maxlength="8" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Teléfono</label>
+                            <input type="tel" id="telefono" placeholder="Ej: 987654321" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Clasificación</label>
+                            <select id="clasificacion" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none bg-blue-50">
+                                <option value="Cliente Potencial">🌟 Cliente Potencial</option>
+                                <option value="Bueno">🟢 Bueno</option>
+                                <option value="Regular">🟡 Regular</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Monto (S/)</label>
+                            <input type="number" id="monto" value="5000" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Cuotas</label>
+                            <input type="number" id="cuotas" value="4" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Plazo (frecuencia)</label>
+                            <select id="frecuencia" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none">
+                                <option value="1">1 = Diario</option>
+                                <option value="7">7 = Semanal</option>
+                                <option value="14" selected>14 = Catorcenal</option>
+                                <option value="30">30 = Mensual</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Fecha Desemb.</label>
+                            <input type="date" id="fechaDesembolso" value="2026-07-30" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Días de Gracia</label>
+                            <input type="number" id="diasGracia" value="0" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                        <div class="flex items-center mt-6">
+                            <input type="checkbox" id="graciaNegativo" class="w-4 h-4 text-[#5da448] focus:ring-[#5da448] border-gray-300 rounded" />
+                            <label for="graciaNegativo" class="ml-2 font-semibold text-gray-700">Negativo</label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Tasa Compens. (%)</label>
+                            <input type="number" step="0.01" id="tasaTEM" value="14.50" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none font-bold text-[#5da448]" />
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Asesor</label>
+                            <input type="text" id="asesor" value="JOSE.SAENZV" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-2 border-t border-gray-200 flex flex-col gap-3">
+                        <button type="button" onclick="guardarClienteLocal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2">
+                            💾 Guardar Prospecto
+                        </button>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="window.print()" class="flex-1 bg-[#5da448] hover:bg-[#4b8a39] text-white py-2 rounded-md font-bold transition-colors">
+                                PDF
+                            </button>
+                            <button type="button" onclick="enviarWhatsAppSimulador()" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2">
+                                WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel Derecho: Ticket / Tabla -->
+            <div class="lg:col-span-8 bg-gray-500 p-2 md:p-6 rounded-xl flex justify-center print-container">
+                <div class="bg-white w-full shadow-lg rounded-sm overflow-hidden text-xs md:text-sm print:shadow-none print:w-full">
+                    
+                    <!-- Encabezado de la tabla tipo sistema -->
+                    <div class="bg-gray-500 text-white p-4 hidden md:block no-print">
+                        <div class="grid grid-cols-3 gap-4 mb-2">
+                            <div>Estado del Crédito: <span class="bg-white text-black px-2 py-1 ml-2">SIMULACIÓN</span></div>
+                            <div class="text-center"></div>
+                            <div class="text-right">Asesor: <span class="bg-white text-black px-2 py-1 ml-2 uppercase" id="sysAsesor">JOSE.SAENZV</span></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>Cuotas: <span class="bg-white text-black px-2 py-1 ml-2" id="sysCuotas">4</span></div>
+                            <div class="text-center">Desembolso: <span class="bg-white text-black px-2 py-1 ml-2" id="sysDesembolso">5000</span></div>
+                            <div class="text-right">Plazo: <span class="bg-white text-black px-2 py-1 ml-2" id="sysPlazo">14</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Cabecera de impresión -->
+                    <div class="p-4 border-b-2 border-black print:block">
+                        <h2 class="text-center text-lg font-bold mb-2 uppercase">Crediban - Calendario de Pagos</h2>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div><strong>CLIENTE:</strong> <span id="prtCliente"></span></div>
+                            <div class="text-right"><strong>FECHA DESEMB.:</strong> <span id="prtFecha"></span></div>
+                            <div><strong>MONTO:</strong> S/ <span id="prtMonto"></span></div>
+                            <div class="text-right"><strong>TASA TEM:</strong> <span id="prtTasa"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Amortización -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-white border-y-2 border-black text-black">
+                                    <th class="p-2 border-r border-gray-300">#</th>
+                                    <th class="p-2 border-r border-gray-300">FECHA</th>
+                                    <th class="p-2 border-r border-gray-300 text-right">CAPITAL</th>
+                                    <th class="p-2 border-r border-gray-300 text-right">INTERÉS</th>
+                                    <th class="p-2 border-r border-gray-300 text-right">CUOTA</th>
+                                    <th class="p-2 border-r border-gray-300 text-right text-gray-500">SALDO TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-body" class="font-mono text-right">
+                                <!-- Filas generadas por JS -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-pink-200 border-t-2 border-black font-bold">
+                                    <td colspan="2" class="p-2 text-center">TOTALES</td>
+                                    <td class="p-2 border-r border-gray-300 text-right" id="totCapital">0.00</td>
+                                    <td class="p-2 border-r border-gray-300 text-right" id="totInteres">0.00</td>
+                                    <td class="p-2 border-r border-gray-300 text-right text-blue-800" id="totCuota">0.00</td>
+                                    <td class="p-2 border-r border-gray-300 text-right"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ================= PESTAÑA 2: CARTERA DE CLIENTES (CRM) ================= -->
+        <main id="view-crm" class="max-w-7xl mx-auto hidden flex-col gap-6 no-print">
+            
+            <div class="bg-white rounded-xl shadow border border-gray-200 p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 border-b pb-4">
+                    <div class="w-full md:w-1/3">
+                        <h2 class="text-xl font-bold text-gray-800">Directorio de Prospectos</h2>
+                        <p class="text-sm text-gray-500 mb-3">Lista de clientes guardados (Los más recientes primero).</p>
+                        <!-- NUEVO BUSCADOR -->
+                        <input type="text" id="buscadorCRM" placeholder="🔍 Buscar por nombre..." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#5da448] outline-none text-sm" oninput="renderizarTablaCRM()">
+                    </div>
+                    
+                    <!-- Panel de Respaldo -->
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <span class="font-bold text-gray-700 text-sm w-full md:w-auto">Respaldo (CSV):</span>
+                        <button onclick="exportarCSV()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">
+                            ⬇️ Descargar
+                        </button>
+                        <label class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm cursor-pointer">
+                            ⬆️ Subir
+                            <input type="file" accept=".csv" class="hidden" onchange="importarCSV(event)">
+                        </label>
+                        <div class="flex items-center gap-2 mt-2 md:mt-0 w-full md:w-auto">
+                            <input type="text" id="targetEnvio" placeholder="Correo o N° Teléfono" class="px-2 py-1.5 border border-gray-300 rounded text-sm outline-none focus:border-blue-500" />
+                            <button onclick="enviarRespaldo()" class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
+                                Enviar Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-sm text-left">
+                        <thead class="bg-gray-100 text-gray-600 font-bold">
+                            <tr>
+                                <th class="p-3 border-b">Fecha Registro</th>
+                                <th class="p-3 border-b">Cliente</th>
+                                <th class="p-3 border-b">DNI</th>
+                                <th class="p-3 border-b">Monto</th>
+                                <th class="p-3 border-b">Plazo (Cuotas)</th>
+                                <th class="p-3 border-b">Clasificación</th>
+                                <th class="p-3 border-b text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-crm" class="divide-y divide-gray-200">
+                            <!-- Generado por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div> <!-- Fin App Content -->
+
+    <script>
+        /* =========================================================================
+           BLOQUE 0: CONTROL DE LOGIN
+           ========================================================================= */
+        
+        // Función de seguridad del sistema
+        function verificarClave() {
+            const pass = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            if(pass === "ASESORCB2026") {
+                document.getElementById('login-screen').style.display = "none";
+                document.getElementById('app-content').classList.remove('hidden');
+                
+                // Opción para mantener sesión abierta si se recarga (persiste en la sesión del navegador)
+                sessionStorage.setItem('crediban_logged_in', 'true');
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        // Revisión de sesión activa al cargar la página
+        window.addEventListener('load', function() {
+            if(sessionStorage.getItem('crediban_logged_in') === 'true') {
+                document.getElementById('login-screen').style.display = "none";
+                document.getElementById('app-content').classList.remove('hidden');
+            }
+        });
+
+        /* =========================================================================
+           BLOQUE 1: MOTOR DE CÁLCULO FINANCIERO EXACTO (INTACTO)
+           ========================================================================= */
+        const holidays = [
+            '2026-01-01', '2026-04-02', '2026-04-03', '2026-05-01',
+            '2026-06-07', '2026-06-29', '2026-07-23', '2026-07-28',
+            '2026-08-06', '2026-08-30', '2026-10-08', '2026-11-01',
+            '2026-12-08', '2026-12-09', '2026-12-25'
+        ];
+
+        let waFechaInicio = "";
+        let waFechaFin = "";
+        let waCuota = 0;
+
+        function isHolidayOrWeekend(dateObj) {
+            const day = dateObj.getDay();
+            if (day === 0 || day === 6) return true;
+            const iso = dateObj.getFullYear() + '-' +
+                        String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(dateObj.getDate()).padStart(2, '0');
+            if (holidays.includes(iso)) return true;
+            return false;
+        }
+
+        function calcularCronograma() {
+            const cliente = document.getElementById('cliente').value.toUpperCase();
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            const cuotas = parseInt(document.getElementById('cuotas').value) || 0;
+            const frecuencia = parseInt(document.getElementById('frecuencia').value) || 0;
+            let diasGracia = parseInt(document.getElementById('diasGracia').value) || 0;
+            const graciaNegativo = document.getElementById('graciaNegativo').checked;
+            const fechaDesembolso = document.getElementById('fechaDesembolso').value;
+            const tasaTEM = parseFloat(document.getElementById('tasaTEM').value) / 100 || 0;
+            const asesor = document.getElementById('asesor').value.toUpperCase();
+
+            if (graciaNegativo) diasGracia = -diasGracia;
+
+            document.getElementById('sysAsesor').innerText = asesor;
+            document.getElementById('sysCuotas').innerText = cuotas;
+            document.getElementById('sysDesembolso').innerText = monto.toFixed(2);
+            document.getElementById('sysPlazo').innerText = frecuencia;
+            
+            document.getElementById('prtCliente').innerText = cliente;
+            document.getElementById('prtFecha').innerText = fechaDesembolso.split('-').reverse().join('/');
+            document.getElementById('prtMonto').innerText = monto.toFixed(2);
+            document.getElementById('prtTasa').innerText = (tasaTEM * 100).toFixed(2) + '%';
+
+            const tbody = document.getElementById('tabla-body');
+            tbody.innerHTML = '';
+
+            if (monto <= 0 || cuotas <= 0 || frecuencia <= 0 || !fechaDesembolso) return;
+
+            let fechas = [];
+            const [y, m, d] = fechaDesembolso.split('-');
+            let fechaInicio = new Date(y, m - 1, d);
+            let currentDate = new Date(fechaInicio);
+
+            for (let i = 1; i <= cuotas; i++) {
+                let diasAAgregar = (i === 1) ? (frecuencia + diasGracia) : frecuencia;
+                currentDate.setDate(currentDate.getDate() + diasAAgregar);
+
+                if (frecuencia === 1) {
+                    while (isHolidayOrWeekend(currentDate)) {
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                }
+                fechas.push(new Date(currentDate));
+            }
+
+            let r = Math.pow(1 + tasaTEM, frecuencia / 30) - 1;
+            let cuotaRaw = 0;
+            if (r === 0) {
+                cuotaRaw = monto / cuotas;
+            } else {
+                cuotaRaw = (monto * r) / (1 - Math.pow(1 + r, -cuotas));
+            }
+
+            let cuotaFija = Math.ceil(cuotaRaw * 10) / 10;
+            waCuota = cuotaFija; 
+
+            let saldoCapital = monto;
+            let saldoTotalAPagar = Math.round((cuotaFija * cuotas) * 100) / 100;
+            
+            let totalCapital = 0, totalInteres = 0, totalCuota = 0;
+
+            for (let i = 1; i <= cuotas; i++) {
+                let interes = saldoCapital * r;
+                let interesRedondeado = Math.round(interes * 100) / 100;
+                let capital = 0;
+
+                if (i === cuotas) {
+                    capital = saldoCapital;
+                    interesRedondeado = Math.round((cuotaFija - capital) * 100) / 100;
+                } else {
+                    capital = Math.round((cuotaFija - interesRedondeado) * 100) / 100;
+                }
+
+                saldoCapital = Math.round((saldoCapital - capital) * 100) / 100;
+                if (saldoCapital < 0.01) saldoCapital = 0;
+
+                saldoTotalAPagar = Math.round((saldoTotalAPagar - cuotaFija) * 100) / 100;
+                if (saldoTotalAPagar < 0.01 || i === cuotas) saldoTotalAPagar = 0;
+
+                totalCapital += capital;
+                totalInteres += interesRedondeado;
+                totalCuota += cuotaFija;
+
+                const fStr = String(fechas[i-1].getFullYear()) + '/' + 
+                             String(fechas[i-1].getMonth() + 1).padStart(2, '0') + '/' + 
+                             String(fechas[i-1].getDate()).padStart(2, '0');
+                             
+                const fStrWA = String(fechas[i-1].getDate()).padStart(2, '0') + '/' + 
+                               String(fechas[i-1].getMonth() + 1).padStart(2, '0') + '/' + 
+                               String(fechas[i-1].getFullYear());
+
+                if (i === 1) waFechaInicio = fStrWA;
+                if (i === cuotas) waFechaFin = fStrWA;
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-300 bg-white hover:bg-blue-50 text-blue-900";
+                
+                tr.innerHTML = `
+                    <td class="p-2 border-r border-gray-300 text-center ${i === 1 ? 'bg-blue-600 text-white font-bold' : ''}">${i}</td>
+                    <td class="p-2 border-r border-gray-300 text-center">${fStr}</td>
+                    <td class="p-2 border-r border-gray-300">${capital.toFixed(2)}</td>
+                    <td class="p-2 border-r border-gray-300">${interesRedondeado.toFixed(2)}</td>
+                    <td class="p-2 border-r border-gray-300 font-bold">${cuotaFija.toFixed(2)}</td>
+                    <td class="p-2 border-r border-gray-300 text-gray-500">${saldoTotalAPagar.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            document.getElementById('totCapital').innerText = totalCapital.toFixed(2);
+            document.getElementById('totInteres').innerText = totalInteres.toFixed(2);
+            document.getElementById('totCuota').innerText = totalCuota.toFixed(2);
+        }
+
+        const inputs = document.querySelectorAll('#simForm input, #simForm select');
+        inputs.forEach(input => {
+            input.addEventListener('input', calcularCronograma);
+            input.addEventListener('change', calcularCronograma);
+        });
+        calcularCronograma();
+
+        /* =========================================================================
+           BLOQUE 2: MENSAJE WHATSAPP DEL SIMULADOR (FORMALIZADO Y SEGURO)
+           ========================================================================= */
+        function obtenerSaludoHorario() {
+            const hora = new Date().getHours();
+            if (hora >= 12 && hora < 19) return { txt: "Buenas tardes", emoji: "☀️" };
+            if (hora >= 19 || hora < 6) return { txt: "Buenas noches", emoji: "🌙" };
+            return { txt: "Buenos días", emoji: "☀️" };
+        }
+
+        function enviarWhatsAppSimulador() {
+            const telefono = document.getElementById('telefono').value.trim();
+            if(!telefono) {
+                alert("Por favor, ingresa el número de teléfono del cliente.");
+                return;
+            }
+
+            const genero = document.getElementById('genero').value;
+            const saludoGenero = genero === 'M' ? 'Estimada' : 'Estimado';
+            const cliente = document.getElementById('cliente').value.trim() || 'Cliente';
+            const asesor = document.getElementById('asesor').value.trim() || 'Asesor';
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            const cuotas = parseInt(document.getElementById('cuotas').value) || 0;
+            const frecuencia = parseInt(document.getElementById('frecuencia').value) || 0;
+            
+            const dStr = document.getElementById('fechaDesembolso').value.split('-');
+            const fechaDesembFormat = dStr[2] + '/' + dStr[1] + '/' + dStr[0];
+            const saludo = obtenerSaludoHorario();
+
+            const mensaje = `*TU CRÉDITO CREDIBAN ESTÁ A UN SOLO PASO 🚀*\n¡${saludo.txt}! ${saludo.emoji}\n${saludoGenero} *${cliente}* 👋, le saluda *${asesor}*, su asesor CREDIBAN 😊.\n\nLe escribo para detallarle su propuesta de financiamiento:\n🔹 *Monto consultado:* S/ ${monto.toFixed(2)}\n🔹 *Plan de pago:* ${cuotas} cuotas, cada ${frecuencia} días\n🔹 *Monto por cuota:* *S/ ${waCuota.toFixed(2)}*\n\n📅 *Cronograma proyectado:*\n• Desembolso: ${fechaDesembFormat}\n• Primer pago: ${waFechaInicio}\n\n🌿 *CREDIBAN, empieza a construir tus sueños.*\n> Nota: Este cálculo es un prospecto. El resultado final se confirmará tras evaluar su perfil a fondo.`;
+
+            let numeroLimpio = telefono.replace(/\D/g, '');
+            if(numeroLimpio.length === 9) numeroLimpio = '51' + numeroLimpio;
+
+            window.open(`https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        /* =========================================================================
+           BLOQUE 3: GESTIÓN DE CLIENTES CRM (LOCALSTORAGE & BÚSQUEDA)
+           ========================================================================= */
+        let clientesCRM = JSON.parse(localStorage.getItem('crediban_crm_clientes')) || [];
+
+        function switchTab(tabId) {
+            document.getElementById('tab-simulador').className = tabId === 'simulador' ? 'py-4 px-2 tab-active transition-colors flex items-center gap-2' : 'py-4 px-2 tab-inactive transition-colors flex items-center gap-2';
+            document.getElementById('tab-crm').className = tabId === 'crm' ? 'py-4 px-2 tab-active transition-colors flex items-center gap-2' : 'py-4 px-2 tab-inactive transition-colors flex items-center gap-2';
+            
+            document.getElementById('view-simulador').style.display = tabId === 'simulador' ? 'grid' : 'none';
+            document.getElementById('view-crm').style.display = tabId === 'crm' ? 'flex' : 'none';
+            
+            if(tabId === 'crm') renderizarTablaCRM();
+        }
+
+        function guardarClienteLocal() {
+            const clienteObj = {
+                id: Date.now(),
+                fechaISO: new Date().toISOString(),
+                fechaDisplay: new Date().toLocaleDateString('es-PE') + " " + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }),
+                nombre: document.getElementById('cliente').value.toUpperCase(),
+                dni: document.getElementById('dni').value.trim(),
+                telefono: document.getElementById('telefono').value.trim(),
+                monto: document.getElementById('monto').value,
+                cuotas: document.getElementById('cuotas').value,
+                frecuencia: document.getElementById('frecuencia').value,
+                clasificacion: document.getElementById('clasificacion').value,
+                asesor: document.getElementById('asesor').value.toUpperCase(),
+                genero: document.getElementById('genero').value
+            };
+
+            if(!clienteObj.nombre || !clienteObj.telefono) {
+                alert("⚠️ Se requiere Nombre y Teléfono para guardar al cliente.");
+                return;
+            }
+
+            clientesCRM.push(clienteObj);
+            localStorage.setItem('crediban_crm_clientes', JSON.stringify(clientesCRM));
+            alert("✅ Cliente guardado correctamente en la Cartera.");
+        }
+
+        function renderizarTablaCRM() {
+            const tbody = document.getElementById('tabla-crm');
+            tbody.innerHTML = '';
+            
+            const filtroTexto = document.getElementById('buscadorCRM') ? document.getElementById('buscadorCRM').value.toLowerCase().trim() : '';
+
+            let listaAMostrar = clientesCRM;
+            
+            if(filtroTexto) {
+                listaAMostrar = clientesCRM.filter(cli => cli.nombre.toLowerCase().includes(filtroTexto));
+            }
+            
+            const listaOrdenada = [...listaAMostrar].sort((a, b) => b.id - a.id);
+
+            if(listaOrdenada.length === 0) {
+                if(filtroTexto) {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">No se encontraron clientes con el nombre "${filtroTexto}".</td></tr>`;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay clientes en la cartera. Guarda uno desde el simulador.</td></tr>`;
+                }
+                return;
+            }
+
+            listaOrdenada.forEach(cli => {
+                let colorClass = "bg-gray-100 text-gray-700";
+                if(cli.clasificacion === 'Cliente Potencial') colorClass = "bg-purple-100 text-purple-800 font-bold border border-purple-200";
+                if(cli.clasificacion === 'Bueno') colorClass = "bg-green-100 text-green-800 font-bold border border-green-200";
+                if(cli.clasificacion === 'Regular') colorClass = "bg-yellow-100 text-yellow-800 font-bold border border-yellow-200";
+
+                const fName = cli.frecuencia == 1 ? "Diario" : (cli.frecuencia == 7 ? "Semanal" : (cli.frecuencia == 14 ? "Catorcenal" : "Mensual"));
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3 whitespace-nowrap text-gray-500 text-xs">${cli.fechaDisplay}</td>
+                    <td class="p-3 font-bold text-gray-900">
+                        ${cli.nombre} <br/> 
+                        <span class="text-xs text-gray-500 font-normal">📞 ${cli.telefono}</span>
+                    </td>
+                    <td class="p-3 text-gray-700">${cli.dni || '-'}</td>
+                    <td class="p-3 font-semibold text-green-700">S/ ${parseFloat(cli.monto).toFixed(2)}</td>
+                    <td class="p-3 text-gray-700">${cli.cuotas} c / ${fName}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded text-xs ${colorClass}">${cli.clasificacion}</span></td>
+                    <td class="p-3 text-center">
+                        <div class="flex justify-center gap-2">
+                            <button onclick="whatsappCRM(${cli.id})" title="Enviar Mensaje Seguimiento" class="bg-[#25D366] hover:bg-[#128C7E] text-white p-2 rounded-full shadow-sm transition-colors">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.115.548 4.148 1.593 5.955L.031 24l6.196-1.625A11.967 11.967 0 0012.031 24c6.645 0 12.03-5.384 12.03-12.03S18.676 0 12.031 0zm0 22.016c-1.782 0-3.52-.479-5.048-1.386l-.361-.214-3.753.984.996-3.66-.235-.373A9.99 9.99 0 012.046 12.03c0-5.503 4.478-9.98 9.985-9.98 5.503 0 9.985 4.478 9.985 9.98 0 5.503-4.482 9.986-9.985 9.986z"/></svg>
+                            </button>
+                            <button onclick="eliminarCliente(${cli.id})" title="Eliminar Cliente" class="bg-red-100 hover:bg-red-200 text-red-600 p-2 rounded-full transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function eliminarCliente(id) {
+            if(confirm("¿Estás seguro de eliminar este prospecto de tu base de datos?")) {
+                clientesCRM = clientesCRM.filter(c => c.id !== id);
+                localStorage.setItem('crediban_crm_clientes', JSON.stringify(clientesCRM));
+                renderizarTablaCRM();
+            }
+        }
+
+        function whatsappCRM(id) {
+            const cli = clientesCRM.find(c => c.id === id);
+            if(!cli) return;
+
+            const saludo = obtenerSaludoHorario();
+            const genText = cli.genero === 'M' ? 'Estimada' : 'Estimado';
+            
+            const mensaje = `¡${saludo.txt}! ${saludo.emoji} \n${genText} *${cli.nombre}*, le escribe *${cli.asesor}* de CREDIBAN, para seguir conversando sobre su crédito 😊.`;
+            
+            let num = cli.telefono.replace(/\D/g, '');
+            if(num.length === 9) num = '51' + num;
+            window.open(`https://wa.me/${num}?text=${encodeURIComponent(mensaje)}`, '_blank');
+        }
+
+        /* =========================================================================
+           BLOQUE 4: IMPORTAR, EXPORTAR Y COMPARTIR BACKUP (CSV)
+           ========================================================================= */
+        function generarStringCSV() {
+            let csv = "\uFEFFFechaRegistro,DNI,Nombre,Telefono,Monto,Cuotas,Frecuencia,Clasificacion,Asesor,Genero\n";
+            clientesCRM.forEach(c => {
+                csv += `"${c.fechaDisplay}","${c.dni}","${c.nombre}","${c.telefono}",${c.monto},${c.cuotas},${c.frecuencia},"${c.clasificacion}","${c.asesor}","${c.genero}"\n`;
+            });
+            return csv;
+        }
+
+        function exportarCSV() {
+            if(clientesCRM.length === 0) return alert("No hay datos para descargar.");
+            const blob = new Blob([generarStringCSV()], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Cartera_Clientes_CREDIBAN_${new Date().toLocaleDateString('es-PE').replace(/\//g,'-')}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function importarCSV(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lineas = text.split('\n');
+                let count = 0;
+                
+                for(let i=1; i<lineas.length; i++) {
+                    const row = lineas[i].trim();
+                    if(!row) continue;
+                    
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                    
+                    if(cols.length >= 9) {
+                        clientesCRM.push({
+                            id: Date.now() + i,
+                            fechaISO: new Date().toISOString(),
+                            fechaDisplay: cols[0],
+                            dni: cols[1],
+                            nombre: cols[2],
+                            telefono: cols[3],
+                            monto: cols[4],
+                            cuotas: cols[5],
+                            frecuencia: cols[6],
+                            clasificacion: cols[7],
+                            asesor: cols[8],
+                            genero: cols[9] || 'H'
+                        });
+                        count++;
+                    }
+                }
+                if(count > 0) {
+                    localStorage.setItem('crediban_crm_clientes', JSON.stringify(clientesCRM));
+                    renderizarTablaCRM();
+                    alert(`✅ Backup importado exitosamente. Se añadieron ${count} clientes.`);
+                } else {
+                    alert("⚠️ No se encontraron registros válidos en el CSV.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; 
+        }
+
+        function enviarRespaldo() {
+            const destino = document.getElementById('targetEnvio').value.trim();
+            if(!destino) return alert("Por favor, ingresa un correo o número de WhatsApp.");
+            if(clientesCRM.length === 0) return alert("No hay datos en la cartera para enviar.");
+
+            const fecha = new Date().toLocaleDateString('es-PE');
+            
+            if(destino.includes('@')) {
+                const subject = encodeURIComponent(`Respaldo CRM CREDIBAN - ${fecha}`);
+                const body = encodeURIComponent(`Adjunto en formato texto los registros de la cartera al ${fecha}.\nCopie el contenido en Excel para recuperarlo.\n\n` + generarStringCSV());
+                window.location.href = `mailto:${destino}?subject=${subject}&body=${body}`;
+            } 
+            else {
+                let num = destino.replace(/\D/g, '');
+                if(num.length === 9) num = '51' + num;
+                const txt = encodeURIComponent(`*Respaldo CRM CREDIBAN (${fecha})*\nTotal Clientes: ${clientesCRM.length}\nDescarga la base de datos desde la PC ingresando al sistema.`);
+                window.open(`https://wa.me/${num}?text=${txt}`, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
