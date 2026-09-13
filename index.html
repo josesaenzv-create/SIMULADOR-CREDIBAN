@@ -146,7 +146,7 @@
                 <form id="simForm" class="space-y-4 text-sm flex-grow">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Nombre de Cliente</label>
-                        <input type="text" id="cliente" value="TJOSE" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        <input type="text" id="cliente" placeholder="Nombre completo" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -201,7 +201,7 @@
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Fecha Desemb.</label>
-                            <input type="date" id="fechaDesembolso" value="2026-07-30" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
+                            <input type="date" id="fechaDesembolso" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-[#5da448] outline-none" />
                         </div>
                     </div>
 
@@ -223,22 +223,30 @@
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Asesor</label>
-                            <input type="text" id="asesor" value="JOSE.SAENZV" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
+                            <div class="flex gap-2">
+                                <input type="text" id="asesor" placeholder="Ej: JOSE" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none transition-colors" />
+                                <button type="button" id="btnFijarAsesor" onclick="toggleFijarAsesor()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 rounded-md transition-colors flex items-center justify-center shadow-sm" title="Fijar Asesor">
+                                    📌
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="pt-4 mt-2 border-t border-gray-200 flex flex-col gap-3">
-                        <button type="button" onclick="guardarClienteLocal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2">
+                        <button type="button" onclick="guardarClienteLocal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
                             💾 Guardar Prospecto
                         </button>
                         <div class="flex gap-2">
-                            <button type="button" onclick="window.print()" class="flex-1 bg-[#5da448] hover:bg-[#4b8a39] text-white py-2 rounded-md font-bold transition-colors">
+                            <button type="button" onclick="window.print()" class="flex-1 bg-[#5da448] hover:bg-[#4b8a39] text-white py-2 rounded-md font-bold transition-colors shadow-sm">
                                 PDF
                             </button>
-                            <button type="button" onclick="enviarWhatsAppSimulador()" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2">
+                            <button type="button" onclick="enviarWhatsAppSimulador()" class="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
                                 WhatsApp
                             </button>
                         </div>
+                        <button type="button" onclick="limpiarSimulador()" class="w-full bg-gray-50 hover:bg-gray-200 text-gray-600 border border-gray-300 py-2 rounded-md font-bold transition-colors flex items-center justify-center gap-2">
+                            🧹 Limpiar Formulario
+                        </button>
                     </div>
                 </form>
             </div>
@@ -252,7 +260,7 @@
                         <div class="grid grid-cols-3 gap-4 mb-2">
                             <div>Estado del Crédito: <span class="bg-white text-black px-2 py-1 ml-2">SIMULACIÓN</span></div>
                             <div class="text-center"></div>
-                            <div class="text-right">Asesor: <span class="bg-white text-black px-2 py-1 ml-2 uppercase" id="sysAsesor">JOSE.SAENZV</span></div>
+                            <div class="text-right">Asesor: <span class="bg-white text-black px-2 py-1 ml-2 uppercase" id="sysAsesor"></span></div>
                         </div>
                         <div class="grid grid-cols-3 gap-4">
                             <div>Cuotas: <span class="bg-white text-black px-2 py-1 ml-2" id="sysCuotas">4</span></div>
@@ -367,7 +375,7 @@
 
     <script>
         /* =========================================================================
-           BLOQUE 0: CONTROL DE LOGIN PRINCIPAL
+           BLOQUE 0: CONTROL DE LOGIN Y ESTADOS INICIALES
            ========================================================================= */
         function verificarClave() {
             const pass = document.getElementById('password-input').value;
@@ -376,12 +384,18 @@
             if(pass === "ASESORCB2026") {
                 document.getElementById('login-screen').style.display = "none";
                 document.getElementById('app-content').classList.remove('hidden');
-                
-                // Opción para mantener sesión abierta si se recarga
                 sessionStorage.setItem('crediban_logged_in', 'true');
             } else {
                 errorMsg.classList.remove('hidden');
             }
+        }
+
+        // Configurar la fecha de hoy automáticamente
+        function setFechaHoy() {
+            const hoy = new Date();
+            const offset = hoy.getTimezoneOffset() * 60000;
+            const fechaLocal = new Date(hoy.getTime() - offset).toISOString().split('T')[0];
+            document.getElementById('fechaDesembolso').value = fechaLocal;
         }
 
         window.addEventListener('load', function() {
@@ -389,10 +403,14 @@
                 document.getElementById('login-screen').style.display = "none";
                 document.getElementById('app-content').classList.remove('hidden');
             }
+            
+            setFechaHoy();
+            inicializarAsesor();
+            calcularCronograma();
         });
 
         /* =========================================================================
-           BLOQUE 0.5: CONTROL DE ACCESO MAESTRO
+           BLOQUE 0.5: CONTROL DE ACCESO MAESTRO Y ASESOR
            ========================================================================= */
         function abrirModalMaestro() {
             document.getElementById('master-password-input').value = "";
@@ -409,9 +427,7 @@
             const errorMsg = document.getElementById('master-error-msg');
             
             if(pass === "Diosesamor16") {
-                // Agregar clase para desbloquear las filas ocultas por CSS
                 document.getElementById('tabla-body').classList.add('master-unlocked');
-                // Ocultar el botón Ver Más
                 document.getElementById('ver-mas-container').style.display = 'none';
                 cerrarModalMaestro();
             } else {
@@ -419,8 +435,58 @@
             }
         }
 
+        // Gestión del Asesor Fijo
+        function inicializarAsesor() {
+            const asesorFijo = localStorage.getItem('crediban_asesor_fijo');
+            const inputAsesor = document.getElementById('asesor');
+            const btnFijar = document.getElementById('btnFijarAsesor');
+            
+            if(asesorFijo) {
+                inputAsesor.value = asesorFijo;
+                inputAsesor.readOnly = true;
+                inputAsesor.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                btnFijar.innerText = '🔓';
+                btnFijar.title = 'Desfijar Asesor';
+            } else {
+                inputAsesor.readOnly = false;
+                inputAsesor.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-200');
+                btnFijar.innerText = '📌';
+                btnFijar.title = 'Fijar Asesor';
+            }
+        }
+
+        function toggleFijarAsesor() {
+            const inputAsesor = document.getElementById('asesor');
+            const asesorActual = inputAsesor.value.trim().toUpperCase();
+            
+            if(inputAsesor.readOnly) {
+                // Si estaba fijado, lo quitamos
+                localStorage.removeItem('crediban_asesor_fijo');
+            } else {
+                // Si no estaba fijado, lo guardamos
+                if(!asesorActual) return alert("Por favor, escribe un nombre de asesor para poder fijarlo.");
+                localStorage.setItem('crediban_asesor_fijo', asesorActual);
+            }
+            inicializarAsesor();
+            calcularCronograma();
+        }
+
+        // Limpiar el Formulario
+        function limpiarSimulador() {
+            document.getElementById('cliente').value = "";
+            document.getElementById('dni').value = "";
+            document.getElementById('telefono').value = "";
+            document.getElementById('monto').value = "5000";
+            document.getElementById('cuotas').value = "4";
+            document.getElementById('diasGracia').value = "0";
+            document.getElementById('graciaNegativo').checked = false;
+            
+            setFechaHoy();
+            calcularCronograma();
+        }
+
         /* =========================================================================
-           BLOQUE 1: MOTOR DE CÁLCULO FINANCIERO EXACTO (INTACTO)
+           BLOQUE 1: MOTOR DE CÁLCULO FINANCIERO CORREGIDO (DÍAS DE GRACIA)
            ========================================================================= */
         const holidays = [
             '2026-01-01', '2026-04-02', '2026-04-03', '2026-05-01',
@@ -444,7 +510,7 @@
         }
 
         function calcularCronograma() {
-            const cliente = document.getElementById('cliente').value.toUpperCase();
+            const cliente = document.getElementById('cliente').value.toUpperCase() || 'CLIENTE';
             const monto = parseFloat(document.getElementById('monto').value) || 0;
             const cuotas = parseInt(document.getElementById('cuotas').value) || 0;
             const frecuencia = parseInt(document.getElementById('frecuencia').value) || 0;
@@ -462,7 +528,7 @@
             document.getElementById('sysPlazo').innerText = frecuencia;
             
             document.getElementById('prtCliente').innerText = cliente;
-            document.getElementById('prtFecha').innerText = fechaDesembolso.split('-').reverse().join('/');
+            document.getElementById('prtFecha').innerText = fechaDesembolso ? fechaDesembolso.split('-').reverse().join('/') : '-';
             document.getElementById('prtMonto').innerText = monto.toFixed(2);
             document.getElementById('prtTasa').innerText = (tasaTEM * 100).toFixed(2) + '%';
 
@@ -488,12 +554,14 @@
                 fechas.push(new Date(currentDate));
             }
 
+            let factorGracia = Math.pow(1 + tasaTEM, diasGracia / 30);
             let r = Math.pow(1 + tasaTEM, frecuencia / 30) - 1;
             let cuotaRaw = 0;
+            
             if (r === 0) {
-                cuotaRaw = monto / cuotas;
+                cuotaRaw = (monto * factorGracia) / cuotas;
             } else {
-                cuotaRaw = (monto * r) / (1 - Math.pow(1 + r, -cuotas));
+                cuotaRaw = (monto * factorGracia * r) / (1 - Math.pow(1 + r, -cuotas));
             }
 
             let cuotaFija = Math.ceil(cuotaRaw * 10) / 10;
@@ -505,7 +573,9 @@
             let totalCapital = 0, totalInteres = 0, totalCuota = 0;
 
             for (let i = 1; i <= cuotas; i++) {
-                let interes = saldoCapital * r;
+                let r_periodo = (i === 1) ? (Math.pow(1 + tasaTEM, (frecuencia + diasGracia) / 30) - 1) : r;
+                let interes = saldoCapital * r_periodo;
+                
                 let interesRedondeado = Math.round(interes * 100) / 100;
                 let capital = 0;
 
@@ -539,7 +609,6 @@
 
                 const tr = document.createElement('tr');
                 
-                // Aplicar clase para ocultar cuotas extra
                 const extraClass = i > 1 ? " cuota-extra" : "";
                 tr.className = "border-b border-gray-300 bg-white hover:bg-blue-50 text-blue-900" + extraClass;
                 
@@ -564,10 +633,9 @@
             input.addEventListener('input', calcularCronograma);
             input.addEventListener('change', calcularCronograma);
         });
-        calcularCronograma();
 
         /* =========================================================================
-           BLOQUE 2: MENSAJE WHATSAPP DEL SIMULADOR (FORMALIZADO Y SEGURO)
+           BLOQUE 2: MENSAJE WHATSAPP DEL SIMULADOR 
            ========================================================================= */
         function obtenerSaludoHorario() {
             const hora = new Date().getHours();
@@ -604,7 +672,7 @@
         }
 
         /* =========================================================================
-           BLOQUE 3: GESTIÓN DE CLIENTES CRM (LOCALSTORAGE & BÚSQUEDA)
+           BLOQUE 3: GESTIÓN DE CLIENTES CRM
            ========================================================================= */
         let clientesCRM = JSON.parse(localStorage.getItem('crediban_crm_clientes')) || [];
 
