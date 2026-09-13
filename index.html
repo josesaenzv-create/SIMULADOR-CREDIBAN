@@ -473,14 +473,26 @@
 
         // Limpiar el Formulario
         function limpiarSimulador() {
+            // Datos del cliente
             document.getElementById('cliente').value = "";
             document.getElementById('dni').value = "";
             document.getElementById('telefono').value = "";
-            document.getElementById('monto').value = "5000";
-            document.getElementById('cuotas').value = "4";
+            
+            // Datos numéricos (vaciados completamente)
+            document.getElementById('monto').value = "";
+            document.getElementById('cuotas').value = "";
+            document.getElementById('tasaTEM').value = "";
+            
+            // Selectores devueltos a sus valores por defecto
+            document.getElementById('frecuencia').value = "14";
+            document.getElementById('clasificacion').value = "Cliente Potencial";
+            document.getElementById('genero').value = "H";
+            
+            // Otros valores numéricos reiniciados
             document.getElementById('diasGracia').value = "0";
             document.getElementById('graciaNegativo').checked = false;
             
+            // Restablecer la fecha y recalcular (lo que vaciará la tabla al no haber monto)
             setFechaHoy();
             calcularCronograma();
         }
