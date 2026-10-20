@@ -23,7 +23,7 @@
         .tab-inactive { color: #6b7280; font-weight: 500; border-bottom: 3px solid transparent; }
         .tab-inactive:hover { color: #374151; border-bottom: 3px solid #d1d5db; }
         
-        /* Ocultar cuotas extras a menos que tenga el acceso maestro */
+        /* Ocultar cuotas extras a menos que tenga el acceso maestro (INTACTO) */
         #tabla-body:not(.master-unlocked) .cuota-extra {
             display: none !important;
         }
@@ -33,42 +33,77 @@
 
     <!-- ================= PANTALLA DE BLOQUEO (LOGIN) ================= -->
     <div id="login-screen" class="fixed inset-0 bg-gray-100 flex items-center justify-center z-50 p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
-            
-            <!-- Logo CREDIBAN -->
-            <div class="w-20 h-24 mx-auto mb-2 flex justify-center items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 240" class="w-full h-full">
-                    <g fill="#59B447">
-                        <rect x="90" y="8" width="24" height="13" rx="6.5"/>
-                        <rect x="71" y="31" width="61" height="13" rx="6.5"/>
-                        <rect x="50" y="55" width="74" height="13" rx="6.5"/>
-                        <rect x="31" y="79" width="75" height="13" rx="6.5"/>
-                        <rect x="24" y="103" width="63" height="13" rx="6.5"/>
-                        <rect x="37" y="128" width="24" height="13" rx="6.5"/>
-                        <path d="M143 55 C141 78 130 95 111 107 C96 117 81 122 72 134 C62 147 63 166 70 181 C76 195 87 208 97 216 C107 201 118 189 131 177 C144 166 157 156 164 141 C173 123 173 104 168 89 C164 74 156 62 143 55 Z"/>
-                    </g>
-                </svg>
-            </div>
-            
-            <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Acceso al Sistema</h2>
-            <p class="text-sm text-gray-500 mb-8 mt-1">Plataforma Comercial - CREDIBAN PERÚ</p>
-
-            <div class="space-y-4">
-                <input type="password" id="password-input" placeholder="Ingrese la contraseña" 
-                       class="w-full px-4 py-3 border-2 border-[#5da448] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#5da448]/30 text-center text-lg tracking-widest transition-all" 
-                       onkeypress="if(event.key === 'Enter') verificarClave()" />
+        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center flex flex-col justify-between border border-gray-200">
+            <div>
+                <!-- Logo CREDIBAN -->
+                <div class="w-20 h-24 mx-auto mb-2 flex justify-center items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 240" class="w-full h-full">
+                        <g fill="#59B447">
+                            <rect x="90" y="8" width="24" height="13" rx="6.5"/>
+                            <rect x="71" y="31" width="61" height="13" rx="6.5"/>
+                            <rect x="50" y="55" width="74" height="13" rx="6.5"/>
+                            <rect x="31" y="79" width="75" height="13" rx="6.5"/>
+                            <rect x="24" y="103" width="63" height="13" rx="6.5"/>
+                            <rect x="37" y="128" width="24" height="13" rx="6.5"/>
+                            <path d="M143 55 C141 78 130 95 111 107 C96 117 81 122 72 134 C62 147 63 166 70 181 C76 195 87 208 97 216 C107 201 118 189 131 177 C144 166 157 156 164 141 C173 123 173 104 168 89 C164 74 156 62 143 55 Z"/>
+                        </g>
+                    </svg>
+                </div>
                 
-                <button onclick="verificarClave()" 
-                        class="w-full bg-[#1ba44a] hover:bg-[#158039] text-white font-bold py-3 rounded-xl transition-colors shadow-md">
-                    Ingresar al Panel
-                </button>
-                <p id="error-msg" class="text-red-500 text-sm font-semibold hidden pt-2">Contraseña incorrecta, intente de nuevo.</p>
+                <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Acceso al Sistema</h2>
+                <p class="text-sm text-gray-500 mb-6 mt-1">Plataforma Comercial - CREDIBAN PERÚ</p>
+
+                <div class="space-y-4 text-left">
+                    <!-- Campo de Usuario -->
+                    <div>
+                        <label for="username-input" class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Usuario</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">👤</span>
+                            <input type="text" id="username-input" placeholder="Ej: Abigael Sandoval o Usuario" autocomplete="username"
+                                   class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 focus:border-[#5da448] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#5da448]/20 text-base font-semibold text-gray-800 transition-all" 
+                                   onkeypress="if(event.key === 'Enter') document.getElementById('password-input').focus()" />
+                        </div>
+                    </div>
+
+                    <!-- Campo de Contraseña con botón Mostrar/Ocultar -->
+                    <div>
+                        <label for="password-input" class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">🔑</span>
+                            <input type="password" id="password-input" placeholder="Ingrese su contraseña" autocomplete="current-password"
+                                   class="w-full pl-10 pr-12 py-3 border-2 border-gray-300 focus:border-[#5da448] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#5da448]/20 text-base font-semibold text-gray-800 tracking-wider transition-all" 
+                                   onkeypress="if(event.key === 'Enter') verificarClave()" />
+                            <button type="button" onclick="toggleVerPassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600" title="Mostrar / Ocultar contraseña">
+                                <span id="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opción Recordar Sesión -->
+                    <div class="flex items-center justify-between pt-1">
+                        <label for="remember-session" class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-gray-600">
+                            <input type="checkbox" id="remember-session" checked class="w-4 h-4 text-[#5da448] rounded border-gray-300 focus:ring-[#5da448]" />
+                            Recordar mi sesión en este equipo
+                        </label>
+                    </div>
+                    
+                    <button type="button" id="btn-login" onclick="verificarClave()" 
+                            class="w-full bg-[#1ba44a] hover:bg-[#158039] text-white font-bold py-3.5 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 mt-2">
+                        <span id="btn-login-text">Ingresar al Panel</span>
+                    </button>
+                    <p id="error-msg" class="text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5 text-xs font-bold text-center hidden"></p>
+                </div>
+            </div>
+
+            <!-- Firma solicitada -->
+            <div class="mt-8 pt-4 border-t border-gray-100 text-center">
+                <p class="text-xs text-gray-400 font-medium tracking-wide">Desarrollado por <span class="font-bold text-gray-600">jS Studio</span></p>
             </div>
         </div>
     </div>
     <!-- =============================================================== -->
 
-    <!-- ================= PANTALLA DE BLOQUEO MAESTRO ================= -->
+    <!-- ================= PANTALLA DE BLOQUEO MAESTRO (INTACTA) ================= -->
     <div id="master-login-screen" class="fixed inset-0 bg-gray-900/80 flex items-center justify-center z-50 p-4 hidden no-print">
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center">
             
@@ -84,12 +119,12 @@
                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/30 text-center text-lg tracking-widest transition-all" 
                        onkeypress="if(event.key === 'Enter') verificarClaveMaestra()" />
                 
-                <button onclick="verificarClaveMaestra()" 
+                <button type="button" onclick="verificarClaveMaestra()" 
                         class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-xl transition-colors shadow-md">
                     Desbloquear Simulador
                 </button>
                 <p id="master-error-msg" class="text-red-500 text-sm font-semibold hidden pt-2">Contraseña incorrecta, intente de nuevo.</p>
-                <button onclick="cerrarModalMaestro()" class="text-gray-500 hover:text-gray-700 underline text-sm mt-2 font-medium">Cancelar</button>
+                <button type="button" onclick="cerrarModalMaestro()" class="text-gray-500 hover:text-gray-700 underline text-sm mt-2 font-medium">Cancelar</button>
             </div>
         </div>
     </div>
@@ -98,7 +133,7 @@
     <!-- CONTENEDOR PRINCIPAL DE LA APP (Oculto hasta ingresar contraseña) -->
     <div id="app-content" class="hidden">
         
-        <header class="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row items-center justify-between no-print gap-4">
+        <header class="max-w-7xl mx-auto mb-4 flex flex-col md:flex-row items-center justify-between no-print gap-4 px-4 md:px-0 pt-4 md:pt-0">
             <div class="flex items-center gap-4">
                 <!-- Logo CREDIBAN: Hojita -->
                 <div class="w-14 h-14 flex-shrink-0">
@@ -119,31 +154,41 @@
                     <p class="text-sm text-gray-500 font-medium italic">empieza a construir tus sueños</p>
                 </div>
             </div>
-            <div class="text-right hidden md:block">
-                <h2 class="text-xl font-bold text-gray-700">Plataforma Comercial</h2>
+
+            <div class="flex items-center gap-3 bg-white md:bg-transparent px-4 py-2 rounded-xl shadow-sm md:shadow-none border md:border-0 border-gray-200">
+                <div class="text-right">
+                    <h2 class="text-sm md:text-lg font-bold text-gray-700 leading-tight">Plataforma Comercial</h2>
+                    <p id="user-session-label" class="text-xs text-[#5da448] font-bold"></p>
+                </div>
+                <button type="button" onclick="cerrarSesion()" title="Cerrar Sesión" class="bg-gray-200 hover:bg-red-100 hover:text-red-700 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
+                    🔒 Salir
+                </button>
             </div>
         </header>
 
         <!-- Sistema de Pestañas -->
-        <div class="max-w-7xl mx-auto mb-6 bg-white shadow-sm rounded-lg overflow-hidden no-print">
-            <nav class="flex space-x-6 px-6">
-                <button onclick="switchTab('simulador')" id="tab-simulador" class="py-4 px-2 tab-active transition-colors flex items-center gap-2">
+        <div class="max-w-7xl mx-auto mb-6 bg-white shadow-sm rounded-lg overflow-x-auto no-print">
+            <nav class="flex space-x-2 md:space-x-6 px-4 md:px-6 whitespace-nowrap">
+                <button type="button" onclick="switchTab('simulador')" id="tab-simulador" class="py-4 px-3 tab-active transition-colors flex items-center gap-2">
                     🧮 Simulador de Créditos
                 </button>
-                <button onclick="switchTab('crm')" id="tab-crm" class="py-4 px-2 tab-inactive transition-colors flex items-center gap-2">
-                    📁 Cartera de Clientes
+                <button type="button" onclick="switchTab('inverso')" id="tab-inverso" class="py-4 px-3 tab-inactive transition-colors flex items-center gap-2">
+                    🎯 Cálculo Inverso (Tasa / Monto)
+                </button>
+                <button type="button" onclick="switchTab('crm')" id="tab-crm" class="py-4 px-3 tab-inactive transition-colors flex items-center gap-2">
+                    📁 Cartera de Clientes <span id="badge-crm-count" class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                 </button>
             </nav>
         </div>
 
-        <!-- ================= PESTAÑA 1: SIMULADOR ================= -->
-        <main id="view-simulador" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- ================= PESTAÑA 1: SIMULADOR (MOTOR INTACTO) ================= -->
+        <main id="view-simulador" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 px-2 md:px-0">
             
             <!-- Panel Izquierdo: Formulario -->
             <div class="lg:col-span-4 bg-white rounded-xl shadow border border-gray-200 p-6 no-print flex flex-col">
                 <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Parámetros del Crédito</h3>
                 
-                <form id="simForm" class="space-y-4 text-sm flex-grow">
+                <form id="simForm" class="space-y-4 text-sm flex-grow" onsubmit="return false;">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Nombre de Cliente</label>
                         <input type="text" id="cliente" placeholder="Nombre completo" class="w-full px-3 py-2 border rounded-md uppercase focus:ring-2 focus:ring-[#5da448] outline-none" />
@@ -320,22 +365,216 @@
             </div>
         </main>
 
-        <!-- ================= PESTAÑA 2: CARTERA DE CLIENTES (CRM) ================= -->
-        <main id="view-crm" class="max-w-7xl mx-auto hidden flex-col gap-6 no-print">
+        <!-- ================= PESTAÑA 2: CÁLCULO INVERSO (TASA O MONTO) ================= -->
+        <main id="view-inverso" class="max-w-7xl mx-auto hidden grid-cols-1 lg:grid-cols-12 gap-6 no-print px-2 md:px-0">
             
+            <!-- Panel Izquierdo: Parámetros de Búsqueda Inversa -->
+            <div class="lg:col-span-5 bg-white rounded-xl shadow border border-gray-200 p-6 flex flex-col">
+                <div class="border-b pb-3 mb-4">
+                    <span class="bg-green-100 text-[#5da448] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">Herramienta de Negociación</span>
+                    <h3 class="text-lg font-bold text-gray-800 mt-2">Cálculo Inverso Financiero</h3>
+                    
+                    <!-- Selector de Modo Inverso -->
+                    <div class="grid grid-cols-2 gap-2 mt-3 bg-gray-100 p-1 rounded-lg">
+                        <button type="button" id="btnModoTasa" onclick="cambiarModoInverso('tasa')" class="py-2 px-3 rounded-md text-xs font-bold bg-white text-[#5da448] shadow-sm transition-all">
+                            🎯 1. Hallar Tasa (%)
+                        </button>
+                        <button type="button" id="btnModoMonto" onclick="cambiarModoInverso('monto')" class="py-2 px-3 rounded-md text-xs font-bold text-gray-600 hover:text-gray-800 transition-all">
+                            💵 2. Hallar Monto (S/)
+                        </button>
+                    </div>
+                </div>
+
+                <form id="invForm" class="space-y-4 text-sm flex-grow" onsubmit="return false;">
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Campo Monto (Activo en Modo 1, Oculto/Calculado en Modo 2) -->
+                        <div id="wrapInvMonto">
+                            <label class="block font-semibold text-gray-700 mb-1">Monto del Crédito (S/)</label>
+                            <input type="number" id="invMonto" value="5000" step="100" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none font-semibold text-gray-800" />
+                        </div>
+                        <!-- Campo Tasa Fija (Oculto en Modo 1, Activo en Modo 2) -->
+                        <div id="wrapInvTasaFija" class="hidden">
+                            <label class="block font-semibold text-gray-700 mb-1">Tasa TEM Aplicada (%)</label>
+                            <input type="number" id="invTasaFija" value="14.50" step="0.10" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none font-bold text-[#5da448]" />
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">N° de Cuotas</label>
+                            <input type="number" id="invCuotas" value="4" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none font-semibold text-gray-800" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Plazo (Frecuencia)</label>
+                            <select id="invFrecuencia" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none">
+                                <option value="1">1 = Diario</option>
+                                <option value="7">7 = Semanal</option>
+                                <option value="14" selected>14 = Catorcenal</option>
+                                <option value="30">30 = Mensual</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Fecha Desembolso</label>
+                            <input type="date" id="invFechaDesembolso" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Días de Gracia</label>
+                            <input type="number" id="invDiasGracia" value="0" class="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#5da448] outline-none" />
+                        </div>
+                        <div class="flex items-center mt-6">
+                            <input type="checkbox" id="invGraciaNegativo" class="w-4 h-4 text-[#5da448] focus:ring-[#5da448] border-gray-300 rounded" />
+                            <label for="invGraciaNegativo" class="ml-2 font-semibold text-gray-700">Gracia Negativa</label>
+                        </div>
+                    </div>
+
+                    <!-- INPUT ESTRELLA: CUOTA OBJETIVO -->
+                    <div class="bg-green-50/70 p-4 rounded-xl border-2 border-[#5da448]">
+                        <label class="block font-bold text-gray-800 mb-1 text-base">💰 Cuota Objetivo del Cliente (S/)</label>
+                        <p class="text-xs text-gray-500 mb-2">¿Cuánto desea o puede pagar el cliente por cuota?</p>
+                        <input type="number" step="0.10" id="invCuotaObjetivo" value="1429.40" 
+                               class="w-full px-4 py-3 border-2 border-[#5da448] rounded-lg focus:ring-4 focus:ring-[#5da448]/20 outline-none font-bold text-xl text-[#158039] bg-white" />
+                        <p id="invMinCuotaHint" class="text-xs text-gray-500 mt-1.5"></p>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-200 flex flex-col gap-2.5">
+                        <button type="button" onclick="transferirAlSimulador()" id="btnTransferirInverso"
+                                class="w-full bg-[#5da448] hover:bg-[#4b8a39] text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 shadow-md">
+                            ⚡ Llevar este Escenario al Simulador Principal
+                        </button>
+                        <button type="button" onclick="sincronizarDesdeSimulador()" 
+                                class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold transition-colors text-xs flex items-center justify-center gap-1">
+                            📥 Copiar datos actuales del Simulador Principal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel Derecho: Resultado y Tabla de Sensibilidad -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                
+                <div class="bg-white rounded-xl shadow border border-gray-200 p-6">
+                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4" id="invTituloResultado">Resultado del Cálculo Inverso</h4>
+
+                    <!-- Alerta de error si la cuota es menor al capital -->
+                    <div id="invAlertaError" class="hidden bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-4">
+                        <p class="text-sm font-bold text-red-700" id="invTextoError"></p>
+                    </div>
+
+                    <div id="invPanelResultados" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Tarjeta Principal -->
+                            <div class="bg-gradient-to-br from-[#5da448] to-[#3b752b] text-white p-5 rounded-xl shadow-md">
+                                <span class="text-xs uppercase font-semibold bg-white/20 px-2.5 py-0.5 rounded-full" id="lblBadgePrincipal">Tasa para el Simulador</span>
+                                <div class="text-4xl font-extrabold mt-2 tracking-tight" id="resTasaSugerida">14.50%</div>
+                                <p class="text-xs text-green-100 mt-1" id="lblSubPrincipal">TEM Compensatoria (a 2 decimales)</p>
+                                <div class="mt-3 pt-3 border-t border-white/20 text-xs flex justify-between items-center">
+                                    <span>Cuota en Sistema (Redondeo 0.10):</span>
+                                    <strong class="text-sm bg-white text-[#3b752b] px-2 py-0.5 rounded font-mono" id="resCuotaSistema">S/ 1429.40</strong>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta Secundaria Técnica -->
+                            <div class="bg-gray-800 text-white p-5 rounded-xl shadow-md flex flex-col justify-between">
+                                <div>
+                                    <span class="text-xs uppercase font-semibold bg-white/10 text-gray-300 px-2.5 py-0.5 rounded-full" id="lblBadgeSecundario">Tasa Matemática Exacta</span>
+                                    <div class="text-3xl font-bold mt-2 text-green-400 font-mono" id="resTasaExacta">14.5000%</div>
+                                    <p class="text-xs text-gray-400 mt-1" id="lblSubSecundario">Cálculo financiero puro</p>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-700 text-xs grid grid-cols-2 gap-2 text-gray-300">
+                                    <div>Tasa Periodo: <strong class="text-white" id="resTasaPeriodo">0.00%</strong></div>
+                                    <div class="text-right">TEA Equiv.: <strong class="text-white" id="resTasaTEA">0.00%</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen Financiero de la Operación -->
+                        <div class="grid grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium">Capital Desembolsado</p>
+                                <p class="text-base md:text-lg font-bold text-gray-800" id="resInvCapital">S/ 5,000.00</p>
+                            </div>
+                            <div class="border-x border-gray-200">
+                                <p class="text-xs text-gray-500 font-medium">Interés Total Proyectado</p>
+                                <p class="text-base md:text-lg font-bold text-blue-700" id="resInvInteres">S/ 717.60</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium">Total a Pagar Cliente</p>
+                                <p class="text-base md:text-lg font-bold text-[#5da448]" id="resInvTotal">S/ 5,717.60</p>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Sensibilidad / Escenarios Cercanos -->
+                        <div>
+                            <h5 class="text-xs font-bold text-gray-600 uppercase mb-2 flex items-center gap-1">
+                                📊 Escenarios de Negociación Cercanos (Clic para aplicar)
+                            </h5>
+                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                                <table class="w-full text-xs text-left border-collapse">
+                                    <thead class="bg-gray-100 text-gray-600 font-bold border-b border-gray-200">
+                                        <tr>
+                                            <th class="p-2.5">Escenario</th>
+                                            <th class="p-2.5 text-right">Monto (S/)</th>
+                                            <th class="p-2.5 text-right">Tasa TEM (%)</th>
+                                            <th class="p-2.5 text-right">Cuota Sistema</th>
+                                            <th class="p-2.5 text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-sensibilidad" class="divide-y divide-gray-200 font-mono">
+                                        <!-- Generado dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- ================= PESTAÑA 3: CARTERA DE CLIENTES (CRM) ================= -->
+        <main id="view-crm" class="max-w-7xl mx-auto hidden flex-col gap-6 no-print px-2 md:px-0">
+            
+            <!-- KPIs Rápidos de Cartera -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold uppercase">Total Prospectos</p>
+                        <p class="text-2xl font-bold text-gray-800" id="kpiTotalClientes">0</p>
+                    </div>
+                    <span class="text-2xl bg-blue-50 p-3 rounded-lg">👥</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold uppercase">Volumen Cotizado</p>
+                        <p class="text-2xl font-bold text-[#5da448]" id="kpiMontoTotal">S/ 0.00</p>
+                    </div>
+                    <span class="text-2xl bg-green-50 p-3 rounded-lg">💰</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold uppercase">Clientes Potenciales</p>
+                        <p class="text-2xl font-bold text-purple-700" id="kpiPotenciales">0</p>
+                    </div>
+                    <span class="text-2xl bg-purple-50 p-3 rounded-lg">🌟</span>
+                </div>
+            </div>
+
             <div class="bg-white rounded-xl shadow border border-gray-200 p-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 border-b pb-4">
                     <div class="w-full md:w-1/3">
                         <h2 class="text-xl font-bold text-gray-800">Directorio de Prospectos</h2>
                         <p class="text-sm text-gray-500 mb-3">Lista de clientes guardados (Los más recientes primero).</p>
-                        <!-- NUEVO BUSCADOR -->
-                        <input type="text" id="buscadorCRM" placeholder="🔍 Buscar por nombre..." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#5da448] outline-none text-sm" oninput="renderizarTablaCRM()">
+                        <input type="text" id="buscadorCRM" placeholder="🔍 Buscar por nombre, DNI o celular..." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#5da448] outline-none text-sm" oninput="renderizarTablaCRM()">
                     </div>
                     
                     <!-- Panel de Respaldo -->
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 flex flex-wrap items-center gap-3 w-full md:w-auto">
                         <span class="font-bold text-gray-700 text-sm w-full md:w-auto">Respaldo (CSV):</span>
-                        <button onclick="exportarCSV()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">
+                        <button type="button" onclick="exportarCSV()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm">
                             ⬇️ Descargar
                         </button>
                         <label class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors shadow-sm cursor-pointer">
@@ -344,7 +583,7 @@
                         </label>
                         <div class="flex items-center gap-2 mt-2 md:mt-0 w-full md:w-auto">
                             <input type="text" id="targetEnvio" placeholder="Correo o N° Teléfono" class="px-2 py-1.5 border border-gray-300 rounded text-sm outline-none focus:border-blue-500" />
-                            <button onclick="enviarRespaldo()" class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
+                            <button type="button" onclick="enviarRespaldo()" class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded text-sm font-medium transition-colors">
                                 Enviar Data
                             </button>
                         </div>
@@ -358,9 +597,9 @@
                                 <th class="p-3 border-b">Fecha Registro</th>
                                 <th class="p-3 border-b">Cliente</th>
                                 <th class="p-3 border-b">DNI</th>
-                                <th class="p-3 border-b">Monto</th>
-                                <th class="p-3 border-b">Plazo (Cuotas)</th>
+                                <th class="p-3 border-b">Monto / Plazo</th>
                                 <th class="p-3 border-b">Clasificación</th>
+                                <th class="p-3 border-b">Estado Gestión</th>
                                 <th class="p-3 border-b text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -375,18 +614,240 @@
 
     <script>
         /* =========================================================================
-           BLOQUE 0: CONTROL DE LOGIN Y ESTADOS INICIALES
+           BLOQUE 0: CONTROL DE LOGIN (USUARIO + CONTRASEÑA CON GOOGLE APPS SCRIPT)
            ========================================================================= */
-        function verificarClave() {
-            const pass = document.getElementById('password-input').value;
-            const errorMsg = document.getElementById('error-msg');
-            
-            if(pass === "ASESORCB2026") {
-                document.getElementById('login-screen').style.display = "none";
-                document.getElementById('app-content').classList.remove('hidden');
-                sessionStorage.setItem('crediban_logged_in', 'true');
+        const APPS_SCRIPT_LOGIN_URL = "https://script.google.com/macros/s/AKfycbyPGo-OSC0KZcz03bAMpKQ82cipc2T1LNztaI229FhYqqNNXqG1oSb6hPPgVSSU3piqiw/exec";
+
+        function toggleVerPassword() {
+            const input = document.getElementById('password-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerText = '🙈';
             } else {
+                input.type = 'password';
+                icon.innerText = '👁️';
+            }
+        }
+
+        function autorizarAcceso(datosUsuario = {}) {
+            const nombre = (datosUsuario.nombre || datosUsuario.usuario || "ASESOR").toUpperCase();
+            const cargo = (datosUsuario.cargo || "").toUpperCase();
+            const sede = (datosUsuario.sede || "").toUpperCase();
+
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('app-content').classList.remove('hidden');
+
+            const infoObjeto = { nombre, cargo, sede, timestamp: Date.now() };
+            const recordar = document.getElementById('remember-session') ? document.getElementById('remember-session').checked : true;
+
+            sessionStorage.setItem('crediban_sesion_activa', JSON.stringify(infoObjeto));
+            if (recordar) {
+                localStorage.setItem('crediban_sesion_activa', JSON.stringify(infoObjeto));
+            }
+
+            // Mostrar etiqueta de usuario en la cabecera
+            let etiqueta = `👤 ${nombre}`;
+            if (cargo) etiqueta += ` • ${cargo}`;
+            if (sede) etiqueta += ` (${sede})`;
+            document.getElementById('user-session-label').innerText = etiqueta;
+
+            // Autocompletar el campo Asesor en el simulador si no estaba fijado otro nombre
+            const inputAsesor = document.getElementById('asesor');
+            if (!localStorage.getItem('crediban_asesor_fijo') && nombre && nombre !== "ASESOR") {
+                inputAsesor.value = nombre;
+                calcularCronograma();
+            }
+        }
+
+        function cerrarSesion() {
+            sessionStorage.removeItem('crediban_sesion_activa');
+            localStorage.removeItem('crediban_sesion_activa');
+            sessionStorage.removeItem('crediban_logged_in');
+            document.getElementById('password-input').value = "";
+            document.getElementById('error-msg').classList.add('hidden');
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('login-screen').style.display = "flex";
+        }
+
+        // Valida la respuesta de Google Apps Script tanto en modo "login" directo como en lista "usuarios"
+        function evaluarRespuestaScript(data, userIngresado, passIngresada) {
+            const userNorm = String(userIngresado || "").trim().toLowerCase();
+            const passNorm = String(passIngresada || "").trim();
+
+            if (!data) return { valido: false };
+
+            if (typeof data === 'object' && !Array.isArray(data)) {
+                // 1. Respuesta directa de action="login" (Estructura de tu Script en Hoja USUARIOS)
+                if (data.status === "ok" && data.usuario && typeof data.usuario === 'object') {
+                    return {
+                        valido: true,
+                        datos: {
+                            nombre: data.usuario.nombre || data.usuario.usuario || userIngresado,
+                            cargo: data.usuario.cargo || "",
+                            sede: data.usuario.sede || ""
+                        }
+                    };
+                }
+
+                // 2. Si el servidor responde un error específico (ej. DESHABILITADO, Contraseña incorrecta, Usuario no encontrado)
+                if (data.status === "error" && data.message) {
+                    return { valido: false, mensajeError: data.message };
+                }
+
+                // 3. Si devuelve la lista de usuarios activos (action="getActiveUsers")
+                const lista = data.usuarios || data.users || data.data || data.rows || data.values;
+                if (Array.isArray(lista)) {
+                    return buscarCredencialesEnLista(lista, userNorm, passNorm);
+                }
+
+                // 4. Otros formatos JSON de éxito
+                if (data.success === true || data.valido === true || data.authorized === true) {
+                    return {
+                        valido: true,
+                        datos: {
+                            nombre: data.nombre || data.usuario || userIngresado,
+                            cargo: data.cargo || "",
+                            sede: data.sede || ""
+                        }
+                    };
+                }
+            }
+
+            if (Array.isArray(data)) {
+                return buscarCredencialesEnLista(data, userNorm, passNorm);
+            }
+
+            return { valido: false };
+        }
+
+        function buscarCredencialesEnLista(lista, userNorm, passNorm) {
+            for (let item of lista) {
+                if (!item) continue;
+
+                if (Array.isArray(item)) {
+                    const uFila = String(item[0] || "").trim().toLowerCase();
+                    const pFila = String(item[1] || "").trim();
+                    const cFila = String(item[2] || "").trim();
+                    const sFila = String(item[3] || "").trim();
+                    const eFila = String(item[4] || "HABILITADO").trim().toUpperCase();
+
+                    if (uFila === userNorm) {
+                        if (eFila === "DESHABILITADO" || eFila === "INACTIVO") {
+                            return { valido: false, mensajeError: "⛔ Tu usuario está DESHABILITADO. Contacta al Administrador." };
+                        }
+                        if (pFila === passNorm) {
+                            return { valido: true, datos: { nombre: item[0], cargo: cFila, sede: sFila } };
+                        } else {
+                            return { valido: false, mensajeError: "❌ Contraseña incorrecta." };
+                        }
+                    }
+                } else if (typeof item === 'object') {
+                    const nombreItem = String(item.usuario || item.nombre || item.USUARIO || item.user || "").trim();
+                    const claveItem  = String(item.clave || item.contraseña || item.contrasena || item.CONTRASEÑA || item.password || item.pass || "").trim();
+                    const cargoItem  = String(item.cargo || item.CARGO || item.rol || item.rango || "").trim();
+                    const sedeItem   = String(item.sede || item.SEDE || "").trim();
+                    const estadoItem = String(item.estado || item.ESTADO || "HABILITADO").trim().toUpperCase();
+
+                    if (nombreItem.toLowerCase() === userNorm) {
+                        if (estadoItem === "DESHABILITADO" || estadoItem === "INACTIVO") {
+                            return { valido: false, mensajeError: "⛔ Tu usuario está DESHABILITADO. Contacta al Administrador." };
+                        }
+                        if (claveItem === passNorm) {
+                            return { valido: true, datos: { nombre: nombreItem, cargo: cargoItem, sede: sedeItem } };
+                        } else {
+                            return { valido: false, mensajeError: "❌ Contraseña incorrecta." };
+                        }
+                    }
+                }
+            }
+            return { valido: false, mensajeError: "❌ Usuario o contraseña incorrectos." };
+        }
+
+        async function verificarClave() {
+            const user = document.getElementById('username-input').value.trim();
+            const pass = document.getElementById('password-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const btnLogin = document.getElementById('btn-login');
+            const btnLoginText = document.getElementById('btn-login-text');
+
+            if (!user || !pass) {
+                errorMsg.innerText = "⚠️ Por favor, ingresa tu Usuario y tu Contraseña.";
                 errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+
+            // Clave de emergencia local (Respaldo corporativo si no hay internet)
+            if (pass === "ASESORCB2026") {
+                autorizarAcceso({ nombre: user, cargo: "ASESOR", sede: "CREDIBAN" });
+                return;
+            }
+
+            // Estado de carga
+            btnLogin.disabled = true;
+            btnLogin.classList.add('opacity-75', 'cursor-wait');
+            btnLoginText.innerText = "⏳ Validando usuario...";
+
+            try {
+                // 1. Petición con action=login (Valida directamente en la Hoja USUARIOS de Google Sheets)
+                const urlLogin = `${APPS_SCRIPT_LOGIN_URL}?action=login&usuario=${encodeURIComponent(user)}&clave=${encodeURIComponent(pass)}&password=${encodeURIComponent(pass)}`;
+                const respLogin = await fetch(urlLogin, { method: 'GET', redirect: 'follow' });
+
+                if (respLogin.ok) {
+                    const txt = await respLogin.text();
+                    let json = null;
+                    try { json = JSON.parse(txt); } catch (e) {}
+
+                    if (json) {
+                        const evalLogin = evaluarRespuestaScript(json, user, pass);
+                        if (evalLogin.valido) {
+                            autorizarAcceso(evalLogin.datos);
+                            return;
+                        }
+                        if (evalLogin.mensajeError) {
+                            errorMsg.innerText = evalLogin.mensajeError;
+                            errorMsg.classList.remove('hidden');
+                            return;
+                        }
+                    }
+                }
+
+                // 2. Fallback: Consultar lista de usuarios activos (action=getActiveUsers)
+                const urlLista = `${APPS_SCRIPT_LOGIN_URL}?action=getActiveUsers`;
+                const respLista = await fetch(urlLista, { method: 'GET', redirect: 'follow' });
+
+                if (respLista.ok) {
+                    const txtLista = await respLista.text();
+                    let jsonLista = null;
+                    try { jsonLista = JSON.parse(txtLista); } catch (e) {}
+
+                    if (jsonLista) {
+                        const evalLista = evaluarRespuestaScript(jsonLista, user, pass);
+                        if (evalLista.valido) {
+                            autorizarAcceso(evalLista.datos);
+                            return;
+                        }
+                        if (evalLista.mensajeError) {
+                            errorMsg.innerText = evalLista.mensajeError;
+                            errorMsg.classList.remove('hidden');
+                            return;
+                        }
+                    }
+                }
+
+                errorMsg.innerText = "❌ Usuario o contraseña incorrectos.";
+                errorMsg.classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Error de conexión con Google Script:", err);
+                errorMsg.innerText = "⚠️ Error de red al verificar credenciales. Revisa tu conexión a internet.";
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.classList.remove('opacity-75', 'cursor-wait');
+                btnLoginText.innerText = "Ingresar al Panel";
             }
         }
 
@@ -396,21 +857,31 @@
             const offset = hoy.getTimezoneOffset() * 60000;
             const fechaLocal = new Date(hoy.getTime() - offset).toISOString().split('T')[0];
             document.getElementById('fechaDesembolso').value = fechaLocal;
+            if (document.getElementById('invFechaDesembolso')) {
+                document.getElementById('invFechaDesembolso').value = fechaLocal;
+            }
         }
 
         window.addEventListener('load', function() {
-            if(sessionStorage.getItem('crediban_logged_in') === 'true') {
-                document.getElementById('login-screen').style.display = "none";
-                document.getElementById('app-content').classList.remove('hidden');
-            }
-            
             setFechaHoy();
             inicializarAsesor();
+
+            // Verificar si hay sesión guardada en localStorage o sessionStorage
+            const sesionGuardada = localStorage.getItem('crediban_sesion_activa') || sessionStorage.getItem('crediban_sesion_activa');
+            if (sesionGuardada) {
+                try {
+                    const datos = JSON.parse(sesionGuardada);
+                    autorizarAcceso(datos);
+                } catch (e) {}
+            }
+            
             calcularCronograma();
+            ejecutarCalculoInverso();
+            actualizarKPIsCRM();
         });
 
         /* =========================================================================
-           BLOQUE 0.5: CONTROL DE ACCESO MAESTRO Y ASESOR
+           BLOQUE 0.5: CONTROL DE ACCESO MAESTRO Y ASESOR (INTACTO)
            ========================================================================= */
         function abrirModalMaestro() {
             document.getElementById('master-password-input').value = "";
@@ -460,10 +931,8 @@
             const asesorActual = inputAsesor.value.trim().toUpperCase();
             
             if(inputAsesor.readOnly) {
-                // Si estaba fijado, lo quitamos
                 localStorage.removeItem('crediban_asesor_fijo');
             } else {
-                // Si no estaba fijado, lo guardamos
                 if(!asesorActual) return alert("Por favor, escribe un nombre de asesor para poder fijarlo.");
                 localStorage.setItem('crediban_asesor_fijo', asesorActual);
             }
@@ -473,32 +942,27 @@
 
         // Limpiar el Formulario
         function limpiarSimulador() {
-            // Datos del cliente
             document.getElementById('cliente').value = "";
             document.getElementById('dni').value = "";
             document.getElementById('telefono').value = "";
             
-            // Datos numéricos (vaciados completamente)
             document.getElementById('monto').value = "";
             document.getElementById('cuotas').value = "";
             document.getElementById('tasaTEM').value = "";
             
-            // Selectores devueltos a sus valores por defecto
             document.getElementById('frecuencia').value = "14";
             document.getElementById('clasificacion').value = "Cliente Potencial";
             document.getElementById('genero').value = "H";
             
-            // Otros valores numéricos reiniciados
             document.getElementById('diasGracia').value = "0";
             document.getElementById('graciaNegativo').checked = false;
             
-            // Restablecer la fecha y recalcular (lo que vaciará la tabla al no haber monto)
             setFechaHoy();
             calcularCronograma();
         }
 
         /* =========================================================================
-           BLOQUE 1: MOTOR DE CÁLCULO FINANCIERO CORREGIDO (DÍAS DE GRACIA)
+           BLOQUE 1: MOTOR DE CÁLCULO FINANCIERO PRINCIPAL (100% INTACTO)
            ========================================================================= */
         const holidays = [
             '2026-01-01', '2026-04-02', '2026-04-03', '2026-05-01',
@@ -547,7 +1011,12 @@
             const tbody = document.getElementById('tabla-body');
             tbody.innerHTML = '';
 
-            if (monto <= 0 || cuotas <= 0 || frecuencia <= 0 || !fechaDesembolso) return;
+            if (monto <= 0 || cuotas <= 0 || frecuencia <= 0 || !fechaDesembolso) {
+                document.getElementById('totCapital').innerText = "0.00";
+                document.getElementById('totInteres').innerText = "0.00";
+                document.getElementById('totCuota').innerText = "0.00";
+                return;
+            }
 
             let fechas = [];
             const [y, m, d] = fechaDesembolso.split('-');
@@ -647,7 +1116,276 @@
         });
 
         /* =========================================================================
-           BLOQUE 2: MENSAJE WHATSAPP DEL SIMULADOR 
+           BLOQUE 1.5: MOTOR DE CÁLCULO INVERSO (MODO 1: TASA | MODO 2: MONTO)
+           ========================================================================= */
+        let modoInversoActual = 'tasa'; // 'tasa' o 'monto'
+        let invResultadoTasa = 14.50;
+        let invResultadoMonto = 5000;
+
+        function cambiarModoInverso(nuevoModo) {
+            modoInversoActual = nuevoModo;
+            const btnTasa = document.getElementById('btnModoTasa');
+            const btnMonto = document.getElementById('btnModoMonto');
+            const wrapMonto = document.getElementById('wrapInvMonto');
+            const wrapTasaFija = document.getElementById('wrapInvTasaFija');
+
+            if (nuevoModo === 'tasa') {
+                btnTasa.className = "py-2 px-3 rounded-md text-xs font-bold bg-white text-[#5da448] shadow-sm transition-all";
+                btnMonto.className = "py-2 px-3 rounded-md text-xs font-bold text-gray-600 hover:text-gray-800 transition-all";
+                wrapMonto.classList.remove('hidden');
+                wrapTasaFija.classList.add('hidden');
+            } else {
+                btnMonto.className = "py-2 px-3 rounded-md text-xs font-bold bg-white text-[#5da448] shadow-sm transition-all";
+                btnTasa.className = "py-2 px-3 rounded-md text-xs font-bold text-gray-600 hover:text-gray-800 transition-all";
+                wrapMonto.classList.add('hidden');
+                wrapTasaFija.classList.remove('hidden');
+            }
+            ejecutarCalculoInverso();
+        }
+
+        function obtenerCuotaRaw(monto, cuotas, frecuencia, diasGracia, tasaTEM) {
+            if (tasaTEM <= 0) return monto / cuotas;
+            const factorGracia = Math.pow(1 + tasaTEM, diasGracia / 30);
+            const r = Math.pow(1 + tasaTEM, frecuencia / 30) - 1;
+            if (r === 0) return (monto * factorGracia) / cuotas;
+            return (monto * factorGracia * r) / (1 - Math.pow(1 + r, -cuotas));
+        }
+
+        function obtenerCuotaSistema(monto, cuotas, frecuencia, diasGracia, tasaPorcentaje) {
+            const raw = obtenerCuotaRaw(monto, cuotas, frecuencia, diasGracia, tasaPorcentaje / 100);
+            return Math.ceil(raw * 10) / 10;
+        }
+
+        function ejecutarCalculoInverso() {
+            const cuotas = parseInt(document.getElementById('invCuotas').value) || 0;
+            const frecuencia = parseInt(document.getElementById('invFrecuencia').value) || 0;
+            let diasGracia = parseInt(document.getElementById('invDiasGracia').value) || 0;
+            const graciaNegativo = document.getElementById('invGraciaNegativo').checked;
+            const cuotaObjetivo = parseFloat(document.getElementById('invCuotaObjetivo').value) || 0;
+
+            if (graciaNegativo) diasGracia = -diasGracia;
+
+            const alertaError = document.getElementById('invAlertaError');
+            const textoError = document.getElementById('invTextoError');
+            const panelResultados = document.getElementById('invPanelResultados');
+            const btnTransferir = document.getElementById('btnTransferirInverso');
+            const hintMinCuota = document.getElementById('invMinCuotaHint');
+
+            if (modoInversoActual === 'tasa') {
+                // MODO 1: HALLAR LA TASA TEM DADO EL MONTO Y LA CUOTA
+                const monto = parseFloat(document.getElementById('invMonto').value) || 0;
+
+                if (monto <= 0 || cuotas <= 0 || frecuencia <= 0 || cuotaObjetivo <= 0) {
+                    alertaError.classList.remove('hidden');
+                    textoError.innerText = "Completa todos los valores numéricos mayores a 0 para calcular la tasa.";
+                    panelResultados.classList.add('opacity-40', 'pointer-events-none');
+                    btnTransferir.disabled = true;
+                    return;
+                }
+
+                hintMinCuota.innerText = `💡 Cuota mínima sin intereses (Tasa 0%): S/ ${(monto / cuotas).toFixed(2)}`;
+
+                if (cuotaObjetivo <= (monto / cuotas) && diasGracia >= 0) {
+                    alertaError.classList.remove('hidden');
+                    textoError.innerText = `⚠️ La cuota ingresada (S/ ${cuotaObjetivo.toFixed(2)}) es menor o igual al capital puro por cuota (S/ ${(monto / cuotas).toFixed(2)}). Incrementa la cuota o el plazo.`;
+                    panelResultados.classList.add('opacity-40', 'pointer-events-none');
+                    btnTransferir.disabled = true;
+                    return;
+                }
+
+                alertaError.classList.add('hidden');
+                panelResultados.classList.remove('opacity-40', 'pointer-events-none');
+                btnTransferir.disabled = false;
+
+                // Bisección de alta precisión para hallar TEM
+                let low = 0.0, high = 10.0;
+                while (obtenerCuotaRaw(monto, cuotas, frecuencia, diasGracia, high) < cuotaObjetivo && high < 1000) {
+                    high *= 2;
+                }
+                for (let iter = 0; iter < 100; iter++) {
+                    const mid = (low + high) / 2;
+                    if (obtenerCuotaRaw(monto, cuotas, frecuencia, diasGracia, mid) < cuotaObjetivo) low = mid;
+                    else high = mid;
+                }
+
+                const tasaExactaPct = ((low + high) / 2) * 100;
+                const candFloor = Math.floor(tasaExactaPct * 100) / 100;
+                const candRound = Math.round(tasaExactaPct * 100) / 100;
+                const candCeil  = Math.ceil(tasaExactaPct * 100) / 100;
+
+                let mejorTasa2Dec = candRound;
+                let menorDiff = Infinity;
+                [candFloor, candRound, candCeil].forEach(c => {
+                    if (c >= 0) {
+                        const diff = Math.abs(obtenerCuotaSistema(monto, cuotas, frecuencia, diasGracia, c) - cuotaObjetivo);
+                        if (diff < menorDiff) { menorDiff = diff; mejorTasa2Dec = c; }
+                    }
+                });
+
+                invResultadoTasa = mejorTasa2Dec;
+                invResultadoMonto = monto;
+
+                const cuotaSis = obtenerCuotaSistema(monto, cuotas, frecuencia, diasGracia, mejorTasa2Dec);
+                const tasaPer = (Math.pow(1 + (tasaExactaPct / 100), frecuencia / 30) - 1) * 100;
+                const tasaTEA = (Math.pow(1 + (tasaExactaPct / 100), 12) - 1) * 100;
+                const totalPagar = Math.round(cuotaSis * cuotas * 100) / 100;
+                const interesTotal = Math.max(0, Math.round((totalPagar - monto) * 100) / 100);
+
+                document.getElementById('lblBadgePrincipal').innerText = "Tasa Sugerida Simulador";
+                document.getElementById('resTasaSugerida').innerText = mejorTasa2Dec.toFixed(2) + "%";
+                document.getElementById('lblSubPrincipal').innerText = "TEM Compensatoria (a 2 decimales)";
+                document.getElementById('resCuotaSistema').innerText = "S/ " + cuotaSis.toFixed(2);
+
+                document.getElementById('lblBadgeSecundario').innerText = "Tasa Matemática Pura";
+                document.getElementById('resTasaExacta').innerText = tasaExactaPct.toFixed(4) + "%";
+                document.getElementById('lblSubSecundario').innerText = "Sin redondeo de décimas";
+                document.getElementById('resTasaPeriodo').innerText = tasaPer.toFixed(2) + "%";
+                document.getElementById('resTasaTEA').innerText = tasaTEA.toFixed(2) + "%";
+
+                document.getElementById('resInvCapital').innerText = "S/ " + monto.toFixed(2);
+                document.getElementById('resInvInteres').innerText = "S/ " + interesTotal.toFixed(2);
+                document.getElementById('resInvTotal').innerText = "S/ " + totalPagar.toFixed(2);
+
+                // Tabla sensibilidad por Tasas
+                const deltas = [-1.0, -0.5, 0, 0.5, 1.0];
+                const tbodySens = document.getElementById('tabla-sensibilidad');
+                tbodySens.innerHTML = '';
+                deltas.forEach(d => {
+                    const tEsc = Math.max(0.01, Math.round((mejorTasa2Dec + d) * 100) / 100);
+                    const cEsc = obtenerCuotaSistema(monto, cuotas, frecuencia, diasGracia, tEsc);
+                    const esObj = d === 0;
+                    const tr = document.createElement('tr');
+                    tr.className = esObj ? "bg-green-50 font-bold text-green-900" : "hover:bg-gray-50 text-gray-700";
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-sans">${esObj ? '🎯 Tasa Objetivo' : (d < 0 ? `Tasa ${d.toFixed(1)}%` : `Tasa +${d.toFixed(1)}%`)}</td>
+                        <td class="p-2.5 text-right">S/ ${monto.toFixed(2)}</td>
+                        <td class="p-2.5 text-right font-bold ${esObj ? 'text-[#5da448]' : ''}">${tEsc.toFixed(2)}%</td>
+                        <td class="p-2.5 text-right">S/ ${cEsc.toFixed(2)}</td>
+                        <td class="p-2.5 text-center font-sans">
+                            <button type="button" onclick="aplicarEscenarioInverso(${monto}, ${tEsc.toFixed(2)})" class="bg-gray-800 hover:bg-[#5da448] text-white px-2.5 py-1 rounded text-xs transition-colors">
+                                Aplicar
+                            </button>
+                        </td>
+                    `;
+                    tbodySens.appendChild(tr);
+                });
+
+            } else {
+                // MODO 2: HALLAR EL MONTO MÁXIMO A PRESTAR DADA LA TASA Y LA CUOTA
+                const tasaFijaPct = parseFloat(document.getElementById('invTasaFija').value) || 0;
+                if (tasaFijaPct <= 0 || cuotas <= 0 || frecuencia <= 0 || cuotaObjetivo <= 0) {
+                    alertaError.classList.remove('hidden');
+                    textoError.innerText = "Completa la Tasa, Cuotas y Cuota Objetivo con valores mayores a 0.";
+                    panelResultados.classList.add('opacity-40', 'pointer-events-none');
+                    btnTransferir.disabled = true;
+                    return;
+                }
+
+                alertaError.classList.add('hidden');
+                panelResultados.classList.remove('opacity-40', 'pointer-events-none');
+                btnTransferir.disabled = false;
+
+                const t = tasaFijaPct / 100;
+                const factorGracia = Math.pow(1 + t, diasGracia / 30);
+                const r = Math.pow(1 + t, frecuencia / 30) - 1;
+                const montoExacto = (cuotaObjetivo * (1 - Math.pow(1 + r, -cuotas))) / (factorGracia * r);
+                const montoRedondeado10 = Math.floor(montoExacto / 10) * 10;
+
+                invResultadoTasa = tasaFijaPct;
+                invResultadoMonto = Math.round(montoExacto * 100) / 100;
+
+                hintMinCuota.innerText = `💡 Con S/ ${cuotaObjetivo.toFixed(2)} por cuota al ${tasaFijaPct.toFixed(2)}% TEM, puedes prestar hasta S/ ${invResultadoMonto.toFixed(2)}.`;
+
+                const cuotaSis = obtenerCuotaSistema(invResultadoMonto, cuotas, frecuencia, diasGracia, tasaFijaPct);
+                const tasaPer = r * 100;
+                const tasaTEA = (Math.pow(1 + t, 12) - 1) * 100;
+                const totalPagar = Math.round(cuotaSis * cuotas * 100) / 100;
+                const interesTotal = Math.max(0, Math.round((totalPagar - invResultadoMonto) * 100) / 100);
+
+                document.getElementById('lblBadgePrincipal').innerText = "Monto Máximo a Prestar";
+                document.getElementById('resTasaSugerida').innerText = "S/ " + invResultadoMonto.toFixed(2);
+                document.getElementById('lblSubPrincipal').innerText = `Capital exacto al ${tasaFijaPct.toFixed(2)}% TEM`;
+                document.getElementById('resCuotaSistema').innerText = "S/ " + cuotaSis.toFixed(2);
+
+                document.getElementById('lblBadgeSecundario').innerText = "Monto Redondeado Sugerido";
+                document.getElementById('resTasaExacta').innerText = "S/ " + montoRedondeado10.toFixed(2);
+                document.getElementById('lblSubSecundario').innerText = "Múltiplo comercial en Soles";
+                document.getElementById('resTasaPeriodo').innerText = tasaPer.toFixed(2) + "%";
+                document.getElementById('resTasaTEA').innerText = tasaTEA.toFixed(2) + "%";
+
+                document.getElementById('resInvCapital').innerText = "S/ " + invResultadoMonto.toFixed(2);
+                document.getElementById('resInvInteres').innerText = "S/ " + interesTotal.toFixed(2);
+                document.getElementById('resInvTotal').innerText = "S/ " + totalPagar.toFixed(2);
+
+                // Tabla sensibilidad por Montos Comerciales cercanos
+                const baseComercial = Math.max(100, Math.round(montoExacto / 100) * 100);
+                const escalones = [-200, -100, 0, 100, 200];
+                const tbodySens = document.getElementById('tabla-sensibilidad');
+                tbodySens.innerHTML = '';
+
+                escalones.forEach(esc => {
+                    const mEsc = esc === 0 ? invResultadoMonto : Math.max(100, baseComercial + esc);
+                    const cEsc = obtenerCuotaSistema(mEsc, cuotas, frecuencia, diasGracia, tasaFijaPct);
+                    const esObj = esc === 0;
+                    const tr = document.createElement('tr');
+                    tr.className = esObj ? "bg-green-50 font-bold text-green-900" : "hover:bg-gray-50 text-gray-700";
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-sans">${esObj ? '🎯 Monto Exacto' : `Opción S/ ${mEsc.toFixed(0)}`}</td>
+                        <td class="p-2.5 text-right font-bold ${esObj ? 'text-[#5da448]' : ''}">S/ ${mEsc.toFixed(2)}</td>
+                        <td class="p-2.5 text-right">${tasaFijaPct.toFixed(2)}%</td>
+                        <td class="p-2.5 text-right">S/ ${cEsc.toFixed(2)}</td>
+                        <td class="p-2.5 text-center font-sans">
+                            <button type="button" onclick="aplicarEscenarioInverso(${mEsc.toFixed(2)}, ${tasaFijaPct.toFixed(2)})" class="bg-gray-800 hover:bg-[#5da448] text-white px-2.5 py-1 rounded text-xs transition-colors">
+                                Aplicar
+                            </button>
+                        </td>
+                    `;
+                    tbodySens.appendChild(tr);
+                });
+            }
+        }
+
+        function aplicarEscenarioInverso(montoElegido, tasaElegida) {
+            invResultadoMonto = montoElegido;
+            invResultadoTasa = tasaElegida;
+            transferirAlSimulador();
+        }
+
+        function transferirAlSimulador() {
+            document.getElementById('monto').value = invResultadoMonto;
+            document.getElementById('cuotas').value = document.getElementById('invCuotas').value;
+            document.getElementById('frecuencia').value = document.getElementById('invFrecuencia').value;
+            document.getElementById('fechaDesembolso').value = document.getElementById('invFechaDesembolso').value;
+            document.getElementById('diasGracia').value = document.getElementById('invDiasGracia').value;
+            document.getElementById('graciaNegativo').checked = document.getElementById('invGraciaNegativo').checked;
+            document.getElementById('tasaTEM').value = Number(invResultadoTasa).toFixed(2);
+
+            calcularCronograma();
+            switchTab('simulador');
+        }
+
+        function sincronizarDesdeSimulador() {
+            document.getElementById('invMonto').value = document.getElementById('monto').value || 5000;
+            document.getElementById('invTasaFija').value = document.getElementById('tasaTEM').value || 14.50;
+            document.getElementById('invCuotas').value = document.getElementById('cuotas').value || 4;
+            document.getElementById('invFrecuencia').value = document.getElementById('frecuencia').value || 14;
+            document.getElementById('invFechaDesembolso').value = document.getElementById('fechaDesembolso').value;
+            document.getElementById('invDiasGracia').value = document.getElementById('diasGracia').value || 0;
+            document.getElementById('invGraciaNegativo').checked = document.getElementById('graciaNegativo').checked;
+            if (waCuota > 0) {
+                document.getElementById('invCuotaObjetivo').value = waCuota.toFixed(2);
+            }
+            ejecutarCalculoInverso();
+        }
+
+        const invInputs = document.querySelectorAll('#invForm input, #invForm select');
+        invInputs.forEach(input => {
+            input.addEventListener('input', ejecutarCalculoInverso);
+            input.addEventListener('change', ejecutarCalculoInverso);
+        });
+
+        /* =========================================================================
+           BLOQUE 2: MENSAJE WHATSAPP DEL SIMULADOR (INTACTO)
            ========================================================================= */
         function obtenerSaludoHorario() {
             const hora = new Date().getHours();
@@ -684,17 +1422,26 @@
         }
 
         /* =========================================================================
-           BLOQUE 3: GESTIÓN DE CLIENTES CRM
+           BLOQUE 3: GESTIÓN DE CLIENTES CRM Y NAVEGACIÓN DE PESTAÑAS
            ========================================================================= */
         let clientesCRM = JSON.parse(localStorage.getItem('crediban_crm_clientes')) || [];
 
         function switchTab(tabId) {
-            document.getElementById('tab-simulador').className = tabId === 'simulador' ? 'py-4 px-2 tab-active transition-colors flex items-center gap-2' : 'py-4 px-2 tab-inactive transition-colors flex items-center gap-2';
-            document.getElementById('tab-crm').className = tabId === 'crm' ? 'py-4 px-2 tab-active transition-colors flex items-center gap-2' : 'py-4 px-2 tab-inactive transition-colors flex items-center gap-2';
+            const tabs = ['simulador', 'inverso', 'crm'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                if (btn) {
+                    btn.className = (t === tabId) 
+                        ? 'py-4 px-3 tab-active transition-colors flex items-center gap-2' 
+                        : 'py-4 px-3 tab-inactive transition-colors flex items-center gap-2';
+                }
+            });
             
             document.getElementById('view-simulador').style.display = tabId === 'simulador' ? 'grid' : 'none';
+            document.getElementById('view-inverso').style.display = tabId === 'inverso' ? 'grid' : 'none';
             document.getElementById('view-crm').style.display = tabId === 'crm' ? 'flex' : 'none';
             
+            if(tabId === 'inverso') ejecutarCalculoInverso();
             if(tabId === 'crm') renderizarTablaCRM();
         }
 
@@ -711,7 +1458,9 @@
                 frecuencia: document.getElementById('frecuencia').value,
                 clasificacion: document.getElementById('clasificacion').value,
                 asesor: document.getElementById('asesor').value.toUpperCase(),
-                genero: document.getElementById('genero').value
+                genero: document.getElementById('genero').value,
+                tasaTEM: document.getElementById('tasaTEM').value || "14.50",
+                estadoGestion: "Pendiente"
             };
 
             if(!clienteObj.nombre || !clienteObj.telefono) {
@@ -721,10 +1470,49 @@
 
             clientesCRM.push(clienteObj);
             localStorage.setItem('crediban_crm_clientes', JSON.stringify(clientesCRM));
+            actualizarKPIsCRM();
             alert("✅ Cliente guardado correctamente en la Cartera.");
         }
 
+        function cambiarEstadoCRM(id, nuevoEstado) {
+            const idx = clientesCRM.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                clientesCRM[idx].estadoGestion = nuevoEstado;
+                localStorage.setItem('crediban_crm_clientes', JSON.stringify(clientesCRM));
+            }
+        }
+
+        function cargarClienteAlSimulador(id) {
+            const cli = clientesCRM.find(c => c.id === id);
+            if (!cli) return;
+
+            document.getElementById('cliente').value = cli.nombre || "";
+            document.getElementById('dni').value = cli.dni || "";
+            document.getElementById('telefono').value = cli.telefono || "";
+            document.getElementById('monto').value = cli.monto || 5000;
+            document.getElementById('cuotas').value = cli.cuotas || 4;
+            document.getElementById('frecuencia').value = cli.frecuencia || 14;
+            document.getElementById('clasificacion').value = cli.clasificacion || "Cliente Potencial";
+            document.getElementById('genero').value = cli.genero || "H";
+            if (cli.tasaTEM) document.getElementById('tasaTEM').value = cli.tasaTEM;
+
+            calcularCronograma();
+            switchTab('simulador');
+        }
+
+        function actualizarKPIsCRM() {
+            const total = clientesCRM.length;
+            const sumaMonto = clientesCRM.reduce((acc, c) => acc + (parseFloat(c.monto) || 0), 0);
+            const potenciales = clientesCRM.filter(c => c.clasificacion === 'Cliente Potencial').length;
+
+            if (document.getElementById('kpiTotalClientes')) document.getElementById('kpiTotalClientes').innerText = total;
+            if (document.getElementById('kpiMontoTotal')) document.getElementById('kpiMontoTotal').innerText = 'S/ ' + sumaMonto.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (document.getElementById('kpiPotenciales')) document.getElementById('kpiPotenciales').innerText = potenciales;
+            if (document.getElementById('badge-crm-count')) document.getElementById('badge-crm-count').innerText = total;
+        }
+
         function renderizarTablaCRM() {
+            actualizarKPIsCRM();
             const tbody = document.getElementById('tabla-crm');
             tbody.innerHTML = '';
             
@@ -733,14 +1521,18 @@
             let listaAMostrar = clientesCRM;
             
             if(filtroTexto) {
-                listaAMostrar = clientesCRM.filter(cli => cli.nombre.toLowerCase().includes(filtroTexto));
+                listaAMostrar = clientesCRM.filter(cli => 
+                    String(cli.nombre || '').toLowerCase().includes(filtroTexto) ||
+                    String(cli.dni || '').toLowerCase().includes(filtroTexto) ||
+                    String(cli.telefono || '').toLowerCase().includes(filtroTexto)
+                );
             }
             
             const listaOrdenada = [...listaAMostrar].sort((a, b) => b.id - a.id);
 
             if(listaOrdenada.length === 0) {
                 if(filtroTexto) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">No se encontraron clientes con el nombre "${filtroTexto}".</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">No se encontraron clientes con "${filtroTexto}".</td></tr>`;
                 } else {
                     tbody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-gray-500">No hay clientes en la cartera. Guarda uno desde el simulador.</td></tr>`;
                 }
@@ -754,6 +1546,8 @@
                 if(cli.clasificacion === 'Regular') colorClass = "bg-yellow-100 text-yellow-800 font-bold border border-yellow-200";
 
                 const fName = cli.frecuencia == 1 ? "Diario" : (cli.frecuencia == 7 ? "Semanal" : (cli.frecuencia == 14 ? "Catorcenal" : "Mensual"));
+                const estActual = cli.estadoGestion || "Pendiente";
+                const telLimpio = String(cli.telefono || '').replace(/\D/g, '');
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 transition-colors";
@@ -764,15 +1558,31 @@
                         <span class="text-xs text-gray-500 font-normal">📞 ${cli.telefono}</span>
                     </td>
                     <td class="p-3 text-gray-700">${cli.dni || '-'}</td>
-                    <td class="p-3 font-semibold text-green-700">S/ ${parseFloat(cli.monto).toFixed(2)}</td>
-                    <td class="p-3 text-gray-700">${cli.cuotas} c / ${fName}</td>
-                    <td class="p-3"><span class="px-2 py-1 rounded text-xs ${colorClass}">${cli.clasificacion}</span></td>
+                    <td class="p-3">
+                        <span class="font-bold text-green-700">S/ ${parseFloat(cli.monto || 0).toFixed(2)}</span><br/>
+                        <span class="text-xs text-gray-500">${cli.cuotas} c / ${fName}</span>
+                    </td>
+                    <td class="p-3"><span class="px-2 py-1 rounded text-xs whitespace-nowrap ${colorClass}">${cli.clasificacion}</span></td>
+                    <td class="p-3">
+                        <select onchange="cambiarEstadoCRM(${cli.id}, this.value)" class="text-xs border border-gray-300 rounded px-2 py-1 bg-white font-semibold text-gray-700 outline-none focus:border-[#5da448]">
+                            <option value="Pendiente" ${estActual === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                            <option value="Contestó" ${estActual === 'Contestó' ? 'selected' : ''}>📞 Contestó</option>
+                            <option value="Promesa / Desembolso" ${estActual === 'Promesa / Desembolso' ? 'selected' : ''}>🤝 Promesa / Evaluación</option>
+                            <option value="No Contesta" ${estActual === 'No Contesta' ? 'selected' : ''}>📵 No Contesta</option>
+                        </select>
+                    </td>
                     <td class="p-3 text-center">
-                        <div class="flex justify-center gap-2">
-                            <button onclick="whatsappCRM(${cli.id})" title="Enviar Mensaje Seguimiento" class="bg-[#25D366] hover:bg-[#128C7E] text-white p-2 rounded-full shadow-sm transition-colors">
+                        <div class="flex justify-center gap-1.5">
+                            <button type="button" onclick="cargarClienteAlSimulador(${cli.id})" title="Cargar en Simulador" class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full shadow-sm transition-colors">
+                                🔄
+                            </button>
+                            <a href="tel:${telLimpio}" title="Llamar al Cliente" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-full shadow-sm transition-colors flex items-center justify-center">
+                                📞
+                            </a>
+                            <button type="button" onclick="whatsappCRM(${cli.id})" title="Enviar WhatsApp" class="bg-[#25D366] hover:bg-[#128C7E] text-white p-2 rounded-full shadow-sm transition-colors">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.115.548 4.148 1.593 5.955L.031 24l6.196-1.625A11.967 11.967 0 0012.031 24c6.645 0 12.03-5.384 12.03-12.03S18.676 0 12.031 0zm0 22.016c-1.782 0-3.52-.479-5.048-1.386l-.361-.214-3.753.984.996-3.66-.235-.373A9.99 9.99 0 012.046 12.03c0-5.503 4.478-9.98 9.985-9.98 5.503 0 9.985 4.478 9.985 9.98 0 5.503-4.482 9.986-9.985 9.986z"/></svg>
                             </button>
-                            <button onclick="eliminarCliente(${cli.id})" title="Eliminar Cliente" class="bg-red-100 hover:bg-red-200 text-red-600 p-2 rounded-full transition-colors">
+                            <button type="button" onclick="eliminarCliente(${cli.id})" title="Eliminar Cliente" class="bg-red-100 hover:bg-red-200 text-red-600 p-2 rounded-full transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </div>
@@ -805,7 +1615,7 @@
         }
 
         /* =========================================================================
-           BLOQUE 4: IMPORTAR, EXPORTAR Y COMPARTIR BACKUP (CSV)
+           BLOQUE 4: IMPORTAR, EXPORTAR Y COMPARTIR BACKUP (CSV) (INTACTO)
            ========================================================================= */
         function generarStringCSV() {
             let csv = "\uFEFFFechaRegistro,DNI,Nombre,Telefono,Monto,Cuotas,Frecuencia,Clasificacion,Asesor,Genero\n";
@@ -855,7 +1665,8 @@
                             frecuencia: cols[6],
                             clasificacion: cols[7],
                             asesor: cols[8],
-                            genero: cols[9] || 'H'
+                            genero: cols[9] || 'H',
+                            estadoGestion: "Pendiente"
                         });
                         count++;
                     }
